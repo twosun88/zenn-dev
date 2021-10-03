@@ -3,7 +3,7 @@ title: "Reactでdocumentをクリックしたら何かする処理を作って�
 emoji: "🐕"
 type: "tech"
 topics: [React, JavaScript]
-published: false
+published: true
 ---
 こんにちは。最近Reactでいろいろやるのに夢中の [twosun](https://twitter.com/twosun88) です。
 
@@ -11,11 +11,11 @@ published: false
 
 Reactで開発してる時にモーダルやポップアップ、アコーディオンなどを開いた後に **「指定の要素以外をクリックしたら閉じるようにしたい！」** そんな経験ありませんか？
 
-ちょうど今作っている個人サービスのプロジェクトにて上記のような処理が必要になってきましたので今回記事にしたいと思います。
+ちょうど今作っている個人サービスで上記のような処理が必要になってきましたので今回記事にしたいと思います。
 
 -----
 
-### 結果をみたい方はこちら（Codesandbox） ###
+### 動きを確認したい方はこちら（Codesandbox） ###
 下記から動きを確認できます。
 https://codesandbox.io/s/react-is-click-on-document-f6lym?file=/src/App.js
 
@@ -23,13 +23,13 @@ https://codesandbox.io/s/react-is-click-on-document-f6lym?file=/src/App.js
 
 ### 仕様 ###
 1. ボタンをクリックしたら対象のコンポーネントがアクティブになる（モーダルやポップアップ、アコーディオンなどが開く）
-2. 対象の要素以外をクリックした時に閉じる
-3. 開いている時にボタンをクリックしても閉じる
+2. 指定の要素以外をクリックしたら閉じる
+3. 複数の箇所で使用する可能性もあるのでコンポーネントを分割しておく
 
 ### 見た目作成 ###
 まずはとりあえず状態なし（stateなし）で見た目を作成します。
-今回は簡単なポップアップを例にします。
-※CSSなどは本記事では割愛しています（Codesandboxの方でご確認ください）
+今回はフェードイン・アウトして表示するポップアップを作っていきます。
+※CSSは本記事では割愛しています（Codesandboxの方でご確認ください）
 
 ```js:App.js
 import "./styles.css";
@@ -57,7 +57,7 @@ export default function App() {
 ### State追加 ###
 次に **"表示・非表の切り替え用に必要なstateを追加しクリックでstateの値を変更し表示する"** 処理を追加していきます。
 
-今回は**stateの変動に合わせてdata-show属性を変更し、CSSでフェートイン・アウト**させます。
+今回は**stateの変動に合わせてdata-show属性を変更し、CSSでフェードイン・アウト**させます。
 
 ::: message
 追加・変更があった行のみハイライトしています
@@ -89,7 +89,7 @@ export default function App() {
 ```
 これで`.button`をクリックしたら`isClickOnDocument`が`true`になり、`.modal`の`data-show="show"`に変更され表示されます。
 
-ですが、このままではクリック後に`isClickOnDocument`が`true`のままなので非表示にすることができません。
+ですが、このままではクリック後に`isClickOnDocument`が`true`のままなので、再度非表示にすることができません。
 
 ### 対象の要素以外をクリックしたら非表示にする ###
 表示しっぱなしはいけませんので、対象の要素以外（赤い箇所以外）をクリックした時に非表示になる処理を追加していきます。
@@ -141,11 +141,11 @@ export default function App() {
 }
 ```
 主な処理の流れは下記の通り。
-1. `useRef`で要素`.modal__inner`を参照できる状態にしておく。
-2. ボタンクリック→`isClickOnDocument`が`true`に変更され、表示する。
+1. `useRef`で要素`.modal__inner`を予め参照できる状態にしておく。
+2. ボタンクリック→`isClickOnDocument`が`true`に変更され、表示（フェードイン）
 3. document（対象外）クリック→`isClickOnDocument`が`true`の場合に`document.addEventListener( 'click', handleClickDocument.current )`発火する
-4. クリックされた要素が`.modal__inner`の内部なのかを`if ( !refEle.current.contains( e.target ) ) `で判断し処理を分ける。
-5. `.modal__inner`の外部なら`isClickOnDocument`を`false`にし非表示にする。
+4. クリックされた箇所が`.modal__inner`の内部なのかを`if ( !refEle.current.contains( e.target ) ) `で判断し処理を分ける。
+5. クリックされた箇所が`.modal__inner`の外部なら`isClickOnDocument`を`false`にし非表示（フェードアウト）にする。
 6. 最後に`document.removeEventListener`にてイベントを削除
 
 ::: message
@@ -209,15 +209,15 @@ export const useIsClickOnDocument = ( useref ) => {
 - `setIsClickOnDocument`： isClickOnDocumentを変更するための関数
 
 この2つをリターンします。
-また、他のコンポーネントでも使いまわせるように**対象の要素（refが指定されている要素）は引数で受け取る**ことにしています。
+また、他のコンポーネントでも使いまわせるように**クリック対象外の要素（refが指定されている要素）は親コンポーネントから受け取る**ことにしています。
 
-あとは、このカスタムフックをApp.jsに組み込めばOKです。
+このカスタムフックをApp.jsに組み込んでいきます。
 ```diff js:App.js
 import './styles.css';
 + import { useRef } from 'react';
 
 + // Hooks
-+ import { useIsDocumentClick } from "./useIsClickOnDocument";
++ import { useIsClickOnDocument } from "./useIsClickOnDocument";
 
 export default function App() {
 
@@ -225,7 +225,7 @@ export default function App() {
 
   const refEle = useRef( null )
 
-+  const [ isClickOnDocument, setIsClickOnDocument ] = useIsDocumentClick( refEle )
++  const [ isClickOnDocument, setIsClickOnDocument ] = useIsClickOnDocument( refEle )
 
   return (
     <div id="app">
@@ -241,10 +241,75 @@ export default function App() {
   )
 }
 ```
-かなりスッキリしましたね。
-App.js側では、ボタンをクリックした時のイベントハンドラーと対象内要素をuseRefにて指定して、他の処理はカスタムフックで行っています。
+かなりスッキリしました。
+`App.js`では、ボタンをクリックした時のイベントハンドラーの定義と対象内要素をuseRefで指定するのみで、他の処理はカスタムフックで行っています。
 
 カスタムフックを利用することで、コードの見通しがよりくなり他のコンポーネントでも同じ処理を使いまわせるのは開発するにあたって大きな利点ですね。
 
-どんどんつかっていきましょうー。
+### コンポーネントを分割する ###
+最後に、今のままだと`App.js`にHTMLを直がきしているため若干見にくいので、必要な部分を別コンポーネントとして独立させておきます（ここではPopUp.js）
+
+そして、コンポーネントを複数設置して、動作に問題ないか確認してみましょう。
+
+※今回は色情報のみ親コンポーネントから受け取っています。
+
+```js: components/PopUp.js
+
+import { useRef } from 'react'
+
+// Hooks
+import { useIsClickOnDocument } from '../useIsClickOnDocument.js'
+
+const PopUp = ({ color }) => {
+
+  const handleClickToggle = () => setIsClickOnDocument( true )
+
+  const refEle = useRef(null);
+
+  const [ isClickOnDocument, setIsClickOnDocument ] = useIsClickOnDocument( refEle )
+
+  return (
+    <>
+      <button className="button" onClick={ handleClickToggle }>
+        { color } Toggle Button
+      </button>
+      <div className="modal" data-show={ isClickOnDocument ? 'show' : 'hidden' }>
+        <div className={ `modal__inner ${ color }` } ref={ refEle }>
+          <p>{ color }</p>
+        </div>
+      </div>
+    </>
+  )
+}
+
+export default PopUp
+```
+```diff js: App.js
+// Style
+import "./styles.css";
+
+// Components
++ import PopUp from "./components/PopUp.js"
+
+export default function App() {
+  return (
+    <div id="app">
+      <div className="container">
++        <PopUp color="Red" />
++        <PopUp color="Blue" />
+      </div>
+    </div>
+  )
+}
+```
+カスタムフックの読み込みをコンポーネント`PopUp`の方に移行しました。
+`App.js`側はコンポーネントを読み込み`color`だけpropsで渡しています。
+
+
+赤と青のポップアップを閉じたり開いたりして動作を確認してみてください。
+それぞれが独立した動きをしていればOKです。
+
+今回はポップアップを例にあげましたが、他にも **"モーダルを開いた時に外側をクリックしたらモーダル閉じる"** などに応用できる思います。
+
+本記事は以上になります。
 最後までお読みいただきありがとうございました。
