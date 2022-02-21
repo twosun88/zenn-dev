@@ -1,5 +1,5 @@
 ---
-title: "DB作成とGORMでのマイグレーション"
+title: "GORMでデータベースの作成とマイグレーション"
 free: false
 ---
 
@@ -25,13 +25,11 @@ MampまたはXamppを起動してください。
 :::
 
 【main.go】を下記のように編集します。
-ユーザー名はやパスワードなどはご自身の環境に合わせてご変更ください。
+ユーザー名やパスワードなどはご自身の環境に合わせてご変更ください。
 ```go:main.go
 package main
 
 import (
-  "fmt"
-
   "gorm.io/driver/mysql"
   "gorm.io/gorm"
 )
@@ -76,12 +74,10 @@ panic: Error 1045: Access denied for user 'root'@'localhost' (using password: YE
 ## データベースを作成する
 接続の確認ができましたので、【main.go】をにデータベース名の情報を追記し、データベースを作成します。
 
-```go:main.go
+```diff go:main.go
 package main
 
 import (
-  "fmt"
-
   "gorm.io/driver/mysql"
   "gorm.io/gorm"
 )
@@ -93,7 +89,7 @@ func main() {
   db_pass := "root"
   db_host := "localhost"
   db_port := "3306"
-  db_name := "golarn" // DB名を追加
++ db_name := "golarn" // DB名を追加
 
   dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/?charset=utf8mb4&parseTime=True&loc=Local"
 
@@ -105,15 +101,19 @@ func main() {
     panic(err.Error())
   }
 
-  // データベース：golarn を作成
-  exec := db.Exec("CREATE DATABASE IF NOT EXISTS " + db_name)
++  // データベース：golarn を作成
++  exec := db.Exec("CREATE DATABASE IF NOT EXISTS " + db_name)
 
 }
 ```
 ```db.Exec("CREATE DATABASE IF NOT EXISTS " + db_name)``` の部分で、**「もし指定されたDBがなければ新規に作成する」** とゆうプログラムを実行しています。すでにDBがある場合は何も処理をしません。
 
+:::message
+ブラウザでMampのphpMyAdminを開いてデータベース【golarn】が作られているかご確認ください。
+:::
+
 これでDBへの接続や作成はできました。ですが、何もテーブルがありません。
-**構造体を定義し上記のDBにテーブルを作成（マイグレーション）**していきます。
+**構造体を定義し上記のDBにテーブルを作成（マイグレーション）** していきます。
 
 その前に、現在の【main.go】はDBの接続確認と生成を行うだけですので、毎回行う必要はありません。別の場所に移動させて必要な時に実行できるようにしておきます。
 
@@ -156,7 +156,7 @@ go run initdb.go
 テーブルが定義できたら構造体を作成していきます。
 【maing.go】を編集します。
 
-```go:main.go
+```diff go:main.go
 package main
 
 import (
@@ -165,26 +165,28 @@ import (
   "gorm.io/driver/mysql"
   "gorm.io/gorm"
 )
-// User 構造体を定義
-type User struct {
-  ID        int       `gorm:"autoIncrement"`
-  Name      string    `gorm:"type:text; not null"`
-  CreatedAt time.Time `gorm:"not null; autoCreateTime"`
-  UpdatedAt time.Time `gorm:"not null; autoUpdateTime"`
-}
 
-// UserTodo 構造体を定義
-type UserTodo struct {
-  ID         int       `gorm:"autoIncrement"`
-  UserId     int       `gorm:"type:int; not null" validate:"required"`
-  TodoName   string    `gorm:"type:text; not null"`
-  TodoStatus *bool     `gorm:"not null; default: 0"`
-  CreatedAt  time.Time `gorm:"not null; autoCreateTime"`
-  UpdatedAt  time.Time `gorm:"not null; autoUpdateTime"`
-}
++ // User 構造体を定義
++ type User struct {
++   ID        int       `gorm:"autoIncrement"`
++   Name      string    `gorm:"type:text; not null"`
++   CreatedAt time.Time `gorm:"not null; autoCreateTime"`
++   UpdatedAt time.Time `gorm:"not null; autoUpdateTime"`
++ }
+
++ // UserTodo 構造体を定義
++ type UserTodo struct {
++   ID         int       `gorm:"autoIncrement"`
++   UserId     int       `gorm:"type:int; not null" validate:"required"`
++   TodoName   string    `gorm:"type:text; not null"`
++   TodoStatus *bool     `gorm:"not null; default: 0"`
++   CreatedAt  time.Time `gorm:"not null; autoCreateTime"`
++   UpdatedAt  time.Time `gorm:"not null; autoUpdateTime"`
++ }
 
 func main() {
 
+  // DB接続情報
   db_user := "root"
   db_pass := "root"
   db_host := "localhost"
@@ -192,14 +194,17 @@ func main() {
   db_name := "golarn"
 
   dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/" + db_name + "?charset=utf8mb4&parseTime=True&loc=Local"
+
+  // 接続開始
   db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
+  // 接続失敗時はエラーを出力し、成功時は何も出力しない。
   if err != nil {
     panic(err.Error())
   }
 
-  // マイグレーション実行
-  db.AutoMigrate(&User{}, &Todo{})
++  // マイグレーション実行
++  db.AutoMigrate(&User{}, &Todo{})
 
 }
 
@@ -209,6 +214,7 @@ func main() {
 **データベース：golarnの中に「users」と「todos」テーブルが作成**されているはずです。
 ＜ここに画像が入る＞
 
+Goの構造体について少し触れておきます。
 構造体は下記のような構成で作成されます。
 ```go
 type 構造体名 struct {
@@ -217,21 +223,24 @@ type 構造体名 struct {
 ```
 GORMを使い構造体でテーブルを作成する時は下記をご留意ください。
 
-1. **構造体の名前やフィールド名はキャメルケースで書く。**
-例：UserTodo、TodoName
-2. **構造体名はスネークケースに変換され、テーブル名になる（複数形）**
-例：UserTodo → user_todos
-3. **複数のタグを設定する場合はスペース区切り**
-例：gorm:"type:int"validate:"required" → gorm:"type:int" validate:"required"
-4. **intやtextなどのゼロ値（0や""など）を扱う場合はポインタにする**
-例：bool → *bool
+> 1. **構造体の名前やフィールド名はキャメルケースで書く。**
+> 例：UserTodo、TodoName
+> 2. **構造体名はスネークケースに変換され、テーブル名になる（複数形）**
+> 例：UserTodo → user_todos
+> 3. **複数のタグを設定する場合はスペース区切り**
+> 例：gorm:"type:int"validate:"required" → gorm:"type:int" validate:"required"
+> 4. **intやtextなどのゼロ値（0や""など）を扱う場合はポインタにする**
+> 例：bool → *bool
 
-簡単にDBへテーブルを作ることができました。
 以上。GORMでのDB接続とマイグーレションの方法でした。
 
-私はここまでの時点でGoの魅力に惹かれました。
-皆さんはどうでしょうか？
+私はここまでの時点でGoの魅力に惹かれましたが、皆さんはどうでしょうか？
 
 今回は構造体をもとにテーブルを作成することをメインとしましたが、後半では構造体のタグを追記しバリデーションやクエリ情報の取得などを行います。
 
-その時にGoの便利さを改めて感じていただければと思います。
+その時にGoの便利さをより感じていただければと思います。
+
+:::message alert
+マイグレーションも頻繁にやらないので？と思った方。
+次の章でディレクトリの整理や環境変数を定義し、使いやすいように調整を行いますのでご安心ください。
+:::
