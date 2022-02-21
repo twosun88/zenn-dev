@@ -1,0 +1,8 @@
+title: "Go（Echo）でAPIを作ってSwaggerでAPIドキュメントを作るまで。"
+summary: "foo"
+topics: ["go", "API", "GORM", "Echo", "Swagger"]
+published: false
+price: 500
+chapters:
+  - intro
+  - go
