@@ -28,11 +28,12 @@ APIを作るにあたり、Ruby on Rails、Laravel、Djangoなど様々な言語
 - Go v1.17
 - GORM v1.9.16（GoのORMライブラリ）
 - Echo v4.6.3（GoのWebフレームワーク）
+- Air v1.27（ホットリロード用）
 - godotenv v1.4.0（.envから環境変数を読み込む用）
 - Echo-swagger v1.3.0（APIドキュメント制作関連）
 - swag v1.7.9（APIドキュメント制作関連）
 - MySQL v5.7.30~
-- MampまたはZamp（データベースの作成など）
+- MampまたはXampp（データベースの確認用）
 - Postman（APIの動作検証用）
 - ターミナルまたはVS Code（コマンドを使います）
 
@@ -52,6 +53,7 @@ APIを作るにあたり、Ruby on Rails、Laravel、Djangoなど様々な言語
   - DBの接続情報を.envファイルに移行
 - Echo
   - webサーバー構築
+  - Airをインストールしてホットリロードに対応
   - CRUD処理を実装しPostmanで動作検証
 - swagger
   - .goファイルにアノテーションを追加

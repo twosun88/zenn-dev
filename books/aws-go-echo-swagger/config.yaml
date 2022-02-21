@@ -6,3 +6,4 @@ price: 500
 chapters:
   - intro
   - go
+  - gorm
