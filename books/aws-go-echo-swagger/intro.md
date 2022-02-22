@@ -48,7 +48,6 @@ APIを作るにあたり、Ruby on Rails、Laravel、Djangoなど様々な言語
 - GORM
   - DBの接続と作成
   - 構造体を定義しマイグレーションする
-  - MampのphpMyAdminでDBの内容を確認
 - godotenv
   - DBの接続情報を.envファイルに移行
 - Echo

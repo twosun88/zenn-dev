@@ -1,0 +1,227 @@
+---
+title: "GORMでマイグレーションを実行する"
+free: false
+---
+
+このページでは構造体を定義しGORMのマッピング機能を使ってマイグレーションを行います。
+<!-- Step -->
+:::details 手順だけ見たい方はこちら
+1. 構造体を定義する
+```diff go:main.go
+package main
+
+import (
+  "time"
+
+  "gorm.io/driver/mysql"
+  "gorm.io/gorm"
+)
+
++ // User 構造体を定義
++ type User struct {
++   ID        int       `gorm:"autoIncrement"`
++   Name      string    `gorm:"type:text; not null"`
++   CreatedAt time.Time `gorm:"not null; autoCreateTime"`
++   UpdatedAt time.Time `gorm:"not null; autoUpdateTime"`
++ }
+
++ // UserTodo 構造体を定義
++ type UserTodo struct {
++   ID         int       `gorm:"autoIncrement"`
++   UserId     int       `gorm:"type:int; not null" validate:"required"`
++   TodoName   string    `gorm:"type:text; not null"`
++   TodoStatus *bool     `gorm:"not null; default: 0"`
++   CreatedAt  time.Time `gorm:"not null; autoCreateTime"`
++   UpdatedAt  time.Time `gorm:"not null; autoUpdateTime"`
++ }
+
+func main() {
+
+  // DB接続情報
+  db_user := "root"
+  db_pass := "root"
+  db_host := "localhost"
+  db_port := "3306"
+  db_name := "golarn"
+
+  dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/" + db_name + "?charset=utf8mb4&parseTime=True&loc=Local"
+
+  // 接続開始
+  db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+  // 接続失敗時はエラーを出力し、成功時は何も出力しない。
+  if err != nil {
+    panic(err.Error())
+  }
+
++  // マイグレーション実行
++  db.AutoMigrate(&User{}, &Todo{})
+
+}
+
+```
+2. ```go run main.go```でマイグレーションを実行する
+```
+$ go run main.go
+```
+3. MampまたはXamppのphpMyAdminの画面で確認する
+4. migrateディレクトリを作りそこにmain.goを複製してmigrate.goにリネームする
+```
+// 現時点でのディレクトリ構成
+~/
+ └─ golean/
+     ├─ initdb/
+         └─ initdb.go
+     ├─ migrate/
+         └─ migrate.go // main.goを複製してmigrate.goにリネーム
+     ├─ go.mod
+     └─ main.go
+```
+:::
+
+## マイグレーションしてテーブル作成する
+まずは、どのようなテーブルを作るかを定義します。
+今回はシンプルに下記のようなテーブルを作成したいと思います。
+
+##### テーブル名：users
+| id | name | created_at | updated_at |
+| ---- | ---- | ---- | ---- |
+| int | text | timestamp | timestamp |
+
+##### テーブル名：user_todos
+| id | user_id | todo_name | todo_status | created_at | updated_at |
+| ---- | ---- | ---- | ---- | ---- | ---- |
+| int | int | text | bool | timestamp | timestamp |
+
+**ユーザーがいて、そのユーザーに紐づくToDo（todo_name）があり、そしてToDoの完了・未完了の状態（todo_status）** がある。とゆう状態ですね。
+
+テーブルが定義できましたら、構造体を作成していきます。
+【maing.go】を下記のように編集します。
+
+```diff go:main.go
+package main
+
+import (
+  "time"
+
+  "gorm.io/driver/mysql"
+  "gorm.io/gorm"
+)
+
++ // User 構造体を定義
++ type User struct {
++   ID        int       `gorm:"autoIncrement"`
++   Name      string    `gorm:"type:text; not null"`
++   CreatedAt time.Time `gorm:"not null; autoCreateTime"`
++   UpdatedAt time.Time `gorm:"not null; autoUpdateTime"`
++ }
+
++ // UserTodo 構造体を定義
++ type UserTodo struct {
++   ID         int       `gorm:"autoIncrement"`
++   UserId     int       `gorm:"type:int; not null" validate:"required"`
++   TodoName   string    `gorm:"type:text; not null"`
++   TodoStatus *bool     `gorm:"not null; default: 0"`
++   CreatedAt  time.Time `gorm:"not null; autoCreateTime"`
++   UpdatedAt  time.Time `gorm:"not null; autoUpdateTime"`
++ }
+
+func main() {
+
+  // DB接続情報
+  db_user := "root"
+  db_pass := "root"
+  db_host := "localhost"
+  db_port := "3306"
+  db_name := "golarn"
+
+  dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/" + db_name + "?charset=utf8mb4&parseTime=True&loc=Local"
+
+  // 接続開始
+  db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+  // 接続失敗時はエラーを出力し、成功時は何も出力しない。
+  if err != nil {
+    panic(err.Error())
+  }
+
++  // マイグレーション実行
++  db.AutoMigrate(&User{}, &Todo{})
+
+}
+
+```
+【main.go】の編集が終わりましたら```go run main.go```を実行して、ブラウザで**MampのphpMyAdminを開きデータベースとテーブルを確認**してみましょう。
+
+**データベース：golarnの中に「users」と「todos」テーブルが作成**されているはずです。
+＜ここに画像が入る＞
+このようにGORMを使うと構造体でテーブル情報を定義し簡単に作成ができます。
+
+ここで、少しだけGoの構造体について触れておきます。
+構造体は下記のような構成で作成されます。
+```go
+type 構造体名 struct {
+  フィールド名 型 `"タグ01" "タグ02"`
+}
+```
+GORMを使い構造体でテーブルを作成する時は下記をご留意ください。
+
+> 1. **構造体の名前やフィールド名はキャメルケースで書く。**
+> 例：UserTodo、TodoName
+> 2. **構造体名はマイグレーション時にスネークケースに変換され、テーブル名になる（複数形）**
+> 例：UserTodo → user_todos
+> 3. **複数のタグを設定する場合はスペース区切り**
+> 例：gorm:"type:int"validate:"required" → gorm:"type:int" validate:"required"
+> 4. **intやtextなどのゼロ値（0や""など）を扱う場合はポインタにする**
+> 例：bool → *bool
+
+:::message
+ゼロ値など聴き慣れない言葉があるとは思いますが後ほど説明します。
+:::
+以上がGORMの基本的なマイグーレションの方法でした。
+
+今回は構造体をもとにテーブルを作成する方法を紹介しましたが、後半では構造体のタグを追記しバリデーションやリクエスト時のクエリ情報の取得などを行います。
+
+最後に、先ほどのデータベース作成時と同じようにマイグレーションもテーブルを作った後は、テーブルが削除されない限り実行する必要はありません。
+先ほどと同じように別ファイルにしておきます。
+
+ここでは新たに【migrate】ディレクトリを作り、その中に【main.go】ファイルを複製し、【migrate】にリネームしておきましょう。
+
+```
+// 現時点でのディレクトリ構成
+~/
+ └─ golean/
+     ├─ initdb/
+         └─ initdb.go
+     ├─ migrate/
+         └─ migrate.go // main.goを複製してmigrate.goにリネーム
+     ├─ go.mod
+     └─ main.go
+```
+
+これで、マイグレートが必要な時（テーブル作成時）は【migrate】ディレクトリに移動し実行するだけでよい環境ができました。（下記参照）
+```
+# ディレクトリを移動
+$ cd ~/golarn/migrate/
+
+# 実行する
+go run migrate.go
+```
+
+以上でGORMでデータベースの作成とマイグレーションの章はひとまず終わりになります。
+
+ここまでの作業で下記の懸念が生まれた方もおられると思います。
+
+:::message alert
+- データベースの接続情報が変わったらinitdb.go、migrate.goの2つとも変更するのは手間じゃやない？
+- そもそもデータベースの接続情報をファイルに直書きするのは、安全面から見てどうなんだろうか？
+:::
+
+これはごもっともです。
+特に、実際の現場ではデータベースの接続情報をファイルに直書きする、なんてことはまずありません（Githubなどに上げてしまった場合は大惨事です）
+
+安心して下さい。これらを解決するための方法を次の章で紹介します。
+
+また、今回定義した構造体「User, UserTodo」もCRUD処理時に使用しますので、今のうちに別ファイルにしておいた方が何かと使いまわしが効きます。
+
+では、次の章に進みましょう。

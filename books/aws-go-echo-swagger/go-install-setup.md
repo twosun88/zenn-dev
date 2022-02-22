@@ -5,8 +5,6 @@ free: false
 
 このページではGoのインストールとセットアップを行います。
 
-## Goのインストール
-
 <!-- Step -->
 :::details 手順だけ見たい方はこちら
 1. [https://go.dev/dl/](https://go.dev/dl/) からGoをダウンロードしてインストールする
@@ -15,8 +13,38 @@ free: false
 $ go version
 go version go1.15.15 darwin/amd64
 ```
+3. 【golarn】ディレクトリを作成し移動する
+```
+$ cd ~/golarn/
+```
+4. 【golarn】内に【main.go】を作成し下記を記述
+```go
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	fmt.Println("Hello World")
+}
+```
+5. main.goを実行する（Hello World）が出力されればOK
+```
+$ go run main.go
+Hello World
+```
+6. go.modを作成する（example-golarnは変更可）
+```
+$ go mod init example-golarn/
+```
+7. go mod init ~ を実行後に **「go: to add module requirements and sums:」** などのメッセージが表示されたら **go mod tidy** を実行
+```
+$ go mod tidy
+```
 :::
-<!-- Step -->
+<!-- // Step -->
+## Goのインストール
 
 まずはご自身のPCにGoをインストールしましょう。
 
@@ -37,48 +65,11 @@ go version go1.15.15 darwin/amd64
 ```
 
 ## セットアップ
-<!-- Step -->
-:::details 手順だけ見たい方はこちら
-
-1. 【golarn】ディレクトリを作成し移動する
-```
-$ cd ~/golarn/
-```
-
-2. 【golarn】内に【main.go】を作成し下記を記述
-```go
-package main
-
-import (
-	"fmt"
-)
-
-func main() {
-	fmt.Println("Hello World")
-}
-```
-
-3. main.goを実行する（Hello World）が出力されればOK
-```
-$ go run main.go
-Hello World
-```
-4. go.modを作成する（example-golarnは変更可）
-```
-$ go mod init example-golarn/
-```
-5. go mod init ~ を実行後に **「go: to add module requirements and sums:」** などのメッセージが表示されたら **go mod tidy** を実行
-```
-$ go mod tidy
-```
-
-:::
-<!-- // Step -->
-
 次に作業用ディレクトリを作成して簡単なプログラムを動かしてみます。
 ディレクトリの作成場所はユーザーのホームディレクトリの配下であればどこでも構いません。
 今回はホームフォルダ直下に【golean】ディレクトリを作成し、その中に【main.go】ファイルを作ります。
 ```
+// 現時点でのディレクトリ構成
 ~/
  └─ golean/
      └─ main.go
@@ -140,12 +131,17 @@ $ go mod init ~ を実行後に **「go: to add module requirements and sums:」
 
 ここまでの【golarn】の中身は下記の構成になります。
 ```
+// 現時点でのディレクトリ構成
 ~/
  └─ golean/
      ├─ go.mod
-     ├─ go.sum（環境によって生成されるため今は無くてもよい）
+     ├─ go.sum（ 環境によって生成されるため無くてもよい ）
      └─ main.go
 ```
 以上でGoのインストールとセットアップは完了です。
+
+## 次に進む前に
+この先、何かエラーが起きてうまくいかなかった場合はコマンドラインで```go mod tidy```を実行してみて下さい。モジュールの互換性など解決できる場合が多々あります。
+覚えておきましょう。
 
 次にGORMを使ってデータベースとの接続、作成などを行います。
