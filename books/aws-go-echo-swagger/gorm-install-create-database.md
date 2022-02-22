@@ -97,7 +97,7 @@ https://gorm.io/ja_JP/docs/index.html
 
 ## GORMのインストール
 まずは、コマンドラインでGORMをインストールします。
-つづいて、今回はデータベースにMySQLを使用しますのでドライバもインストールしておきます。
+今回はデータベースにMySQLを使用しますのでいっしょにドライバもインストールしておきます。
 
 ```
 $ go get github.com/jinzhu/gorm
