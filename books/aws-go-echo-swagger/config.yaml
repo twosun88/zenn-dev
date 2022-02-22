@@ -8,3 +8,4 @@ chapters:
   - go-install-setup
   - gorm-install-create-database
   - gorm-migrate
+  - godotenv

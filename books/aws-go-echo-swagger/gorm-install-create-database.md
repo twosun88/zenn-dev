@@ -3,7 +3,7 @@ title: "GORMをインストールしてデータベースを作成する"
 free: false
 ---
 
-このページではGORMをインストールして、DBを作成します。
+このページではGORMをインストールして、データベースを作成します。
 
 <!-- Step -->
 :::details 手順だけ見たい方はこちら
@@ -26,7 +26,7 @@ func main() {
 
   // DB接続情報
   db_user := "root"
-  db_pass := "root"
+  db_pass := "1234"
   db_host := "localhost"
   db_port := "3306"
 
@@ -55,7 +55,7 @@ func main() {
 
   // DB接続情報
   db_user := "root"
-  db_pass := "root"
+  db_pass := "1234"
   db_host := "localhost"
   db_port := "3306"
 + db_name := "golarn" // DB名を追加
@@ -72,6 +72,7 @@ func main() {
 
 +  // データベース：golarn を作成
 +  exec := db.Exec("CREATE DATABASE IF NOT EXISTS " + db_name)
++  fmt.Println(exec)
 
 }
 ```
@@ -112,7 +113,7 @@ $ go get gorm.io/driver/mysql
 この先はMampまたはXamppを起動しっぱなしにしておいて下さい。
 :::
 
-【main.go】を下記のように編集します。
+```main.go```を下記のように編集します。
 ユーザー名やパスワードなどはご自身の環境に合わせてご変更ください。
 ```go:main.go
 package main
@@ -126,7 +127,7 @@ func main() {
 
   // DB接続情報
   db_user := "root"
-  db_pass := "root"
+  db_pass := "1234"
   db_host := "localhost"
   db_port := "3306"
 
@@ -143,7 +144,7 @@ func main() {
 }
 ```
 
-【main.go】を編集したら ```go run main.go``` で実行します。
+```main.go```を編集したらコマンドラインに```go run main.go``` と入力し実行します。
 接続成功時の処理は何も書いていないので実行後に何も返って来なければ接続OKです。
 ```
 $ go run main.go
@@ -155,10 +156,10 @@ $ go run main.go
 [error] failed to initialize database, got error Error 1045: Access denied for user 'root'@'localhost' (using password: YES)
 panic: Error 1045: Access denied for user 'root'@'localhost' (using password: YES)
 ```
-```panic: Error ~``` と書かれてる部分が【main.go】に記載した失敗時の処理ですね。
+**panic: Error ~** と書かれてる部分が```main.go```に記載した失敗時の処理ですね。
 
 ## データベースを作成する
-接続の確認ができましたので、【main.go】をにデータベース名の情報を追記し、データベースを作成します。
+接続の確認ができましたので、次はデータベースを作成します。
 
 ```diff go:main.go
 package main
@@ -172,7 +173,7 @@ func main() {
 
   // DB接続情報
   db_user := "root"
-  db_pass := "root"
+  db_pass := "1234"
   db_host := "localhost"
   db_port := "3306"
 + db_name := "golarn" // DB名を追加
@@ -189,23 +190,24 @@ func main() {
 
 +  // データベース：golarn を作成
 +  exec := db.Exec("CREATE DATABASE IF NOT EXISTS " + db_name)
++  fmt.Println(exec)
 
 }
 ```
-```db.Exec("CREATE DATABASE IF NOT EXISTS " + db_name)``` の部分で、**「もし指定されたDBがなければ新規に作成する」** とゆうプログラムを実行しています。すでにDBがある場合は何も処理をしません。
+```db.Exec("CREATE DATABASE IF NOT EXISTS " + db_name)``` の部分で、**「もし指定されたデータベースがなければ新規に作成する」** とゆうプログラムを実行しています。すでにある場合は何も処理をしません。
 
 :::message
-ブラウザでMampのphpMyAdminを開いてデータベース【golarn】が作られているかご確認ください。
+ブラウザでphpMyAdminを開いてデータベース **「golarn」** が作られているかご確認ください。
 :::
 
-これでDBへの接続や作成はできました。ですが、何もテーブルがありません。
-**構造体を定義しテーブルを作成（マイグレーション）** していきます。
+これでデータベースへの接続や作成はできました。ですが、まだ何もテーブルがありません。
+次の頁で**構造体を定義しテーブルを作成（マイグレーション）** していきます。
 
-その前に、現在の【main.go】はデータベースの接続確認と作成を行うだけの処理ですので、作成後は対象のデータベースが削除されない限りは実行する必要はありません。
+その前に、現在の`main.go`はデータベースの接続確認と作成を行うだけの処理ですので、作成後はデータベースが削除されない限りは実行する必要はありません。
 
 別の場所に移動させて必要な時に実行できるようにしておきましょう。
 
-ここでは新たに【initdb】ディレクトリを作り、その中に【main.go】ファイルを複製し、【initdbe.go】にリネームしておきます。
+ここでは新たに`initdb`ディレクトリを作り、その中に`main.go`ファイルを複製し、`initdbe.go`にリネームしておきます。
 ```
 // 現時点でのディレクトリ構成
 ~/
@@ -216,7 +218,7 @@ func main() {
      └─ main.go
 ```
 
-これで、データベースの接続・作成が必要な時は【initdb】ディレクトリに移動し実行するだけでよい環境ができました。（下記参照）
+これで、データベースの接続・作成が必要な時は`initdb`ディレクトリに移動し、実行するだけでよい環境ができました。（下記参照）
 ```
 # ディレクトリを移動
 $ cd ~/golarn/initdb/
