@@ -9,3 +9,4 @@ chapters:
   - gorm-install-create-database
   - gorm-migrate
   - godotenv
+  - echo-setup
