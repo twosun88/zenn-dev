@@ -1,9 +1,9 @@
 ---
-title: "データベースの接続情報をgodotenvで読み込む"
+title: "データベース情報をgodotenvで読み込む"
 free: false
 ---
 
-このページではデータベースの接続情報を.envファイルから読み込み方法を説明しています。
+このページではデータベース情報を.envファイルから読み込み方法を説明しています。
 <!-- Step -->
 :::details 手順だけ見たい方はこちら
 1. godotenvのインストール
@@ -11,7 +11,7 @@ free: false
 $ go get github.com/joho/godotenv
 ```
 
-2. .envファイルを作成しデータベースの接続情報を記述
+2. .envファイルを作成しデータベース情報を記述
 ```
 // 現時点でのディレクトリ構成
 ~/
@@ -47,7 +47,7 @@ import (
 
 func main() {
 
--  // 今まで使用していたDB接続情報は削除する
+-  // 今まで使用していたデータベース情報は削除する
 -  db_user := "root"
 -  db_pass := "root"
 -  db_host := "localhost"
@@ -120,7 +120,7 @@ type UserTodo struct {
 
 func main() {
 
--  // 今まで使用していたDB接続情報は削除する
+-  // 今まで使用していたデータベース情報は削除する
 -  db_user := "root"
 -  db_pass := "root"
 -  db_host := "localhost"
@@ -174,7 +174,7 @@ https://github.com/joho/godotenv
 $ go get github.com/joho/godotenv
 ```
 ## .envファイルの作成
-まずは、.envファイルを作成します。
+次に、.envファイルを作成します。
 ```
 // 現時点でのディレクトリ構成
 ~/
@@ -187,8 +187,7 @@ $ go get github.com/joho/godotenv
      ├─ go.mod
      └─ main.go
 ```
-つづいて.envファイルに下記のようにデータベースの接続情報を記述します。
-ちなみに、これらは**環境変数**と呼ばれます。
+つづいて.envファイルに下記のようにデータベース情報を、環境変数として記述します。
 ```:.env
 DB_HOST = localhost
 DB_PORT = 3306
@@ -196,8 +195,7 @@ DB_USER = root
 DB_PASS = 1234
 DB_NAME = golarn
 ```
-あとは、データベースのユーザー名などをこの.envファイルから呼び出すだけで、他は特に変わりありません。
-まずは、`initdb.go`を編集してみましょう。
+あとは、データベースのユーザー名などをこの.envファイルから呼び出すだけで、他は特に変わりありません。まずは、`initdb.go`を編集してみましょう。
 
 ```diff go:initdb/initdb.go
 package main
@@ -214,7 +212,7 @@ import (
 
 func main() {
 
--  // 今まで使用していたDB接続情報は削除する
+-  // 今まで使用していたデータベース情報は削除する
 -  db_user := "root"
 -  db_pass := "root"
 -  db_host := "localhost"
@@ -248,7 +246,7 @@ func main() {
 
   // データベース：golarn を作成
   exec := db.Exec("CREATE DATABASE IF NOT EXISTS " + name)
-	fmt.Println(exec)
+  fmt.Println(exec)
 
 }
 ```
@@ -259,7 +257,7 @@ func main() {
 # initdb/ ディレクトリに移動し下記を実行。
 $ go run initdb.go
 ```
-実行後、再度ブラウザでphpMyAdminを開き「golarn」があるか確認します。
+実行後、再度ブラウザでphpMyAdminを開きデータベース「golarn」があるか確認します。
 作成されていれば.envからデータベース情報を正常に読み取りプログラムを実行できたことになります。
 
 同様の処理を`migrate.go`に行います。
@@ -293,7 +291,7 @@ type UserTodo struct {
 
 func main() {
 
--  // 今まで使用していたDB接続情報は削除する
+-  // 今まで使用していたデータベース情報は削除する
 -  db_user := "root"
 -  db_pass := "root"
 -  db_host := "localhost"
@@ -331,7 +329,7 @@ func main() {
 }
 
 ```
-同じように一度削除して確認してみましょう。
+同じように一度削除して、再度作ってみましょう。
 ブラウザでphpMyAdminを開き「usersとuser_todos」テーブルを削除します。
 次に`migrate.go`を実行します。
 ```
@@ -339,7 +337,7 @@ func main() {
 $ go run migrate.go
 ```
 再度、ブラウザphpMyAdminを開き「usersとuser_todos」テーブルがあるか確認します。
-作成されていれば.envからデータベース情報を正常に読み取りプログラムを実行できたことになります。
+作成されていればこちらも.envからデータベース情報を正常に読み取りプログラムを実行できたことになります。
 
 これで、データベースの情報を`initdb.go`や`migrate.go`2つのファイルに直書きすることはなくなり、.envファイルから読み取ることができるようになりました。
 
@@ -351,4 +349,5 @@ $ go run migrate.go
 
 もしも、今後データベースのユーザー名やパスワードが変更になった場合は.envファイルを編集するだけでよいので管理が楽になりましたね。
 
-データベース関連のセットアップは終わりましたので次は、いよいよEchoを使ってWebサーバーを作ります。
+以上で、データベース関連は終了です。
+次は、Echoを使ってWebサーバーを作ります。

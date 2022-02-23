@@ -24,7 +24,7 @@ import (
 
 func main() {
 
-  // DB接続情報
+  // データベース情報
   db_user := "root"
   db_pass := "1234"
   db_host := "localhost"
@@ -53,7 +53,7 @@ import (
 
 func main() {
 
-  // DB接続情報
+  // データベース情報
   db_user := "root"
   db_pass := "1234"
   db_host := "localhost"
@@ -125,7 +125,7 @@ import (
 
 func main() {
 
-  // DB接続情報
+  // データベース情報
   db_user := "root"
   db_pass := "1234"
   db_host := "localhost"
@@ -165,13 +165,15 @@ panic: Error 1045: Access denied for user 'root'@'localhost' (using password: YE
 package main
 
 import (
+  "fmt"
+
   "gorm.io/driver/mysql"
   "gorm.io/gorm"
 )
 
 func main() {
 
-  // DB接続情報
+  // データベース情報
   db_user := "root"
   db_pass := "1234"
   db_host := "localhost"
@@ -194,14 +196,25 @@ func main() {
 
 }
 ```
-```db.Exec("CREATE DATABASE IF NOT EXISTS " + db_name)``` の部分で、**「もし指定されたデータベースがなければ新規に作成する」** とゆうプログラムを実行しています。すでにある場合は何も処理をしません。
+`main.go`の編集ができましたら実行します。
+```
+# main.goを実行する
+$ go run main.go
+```
+
+```db.Exec("CREATE DATABASE IF NOT EXISTS " + db_name)``` の部分で、**「もしデータベースがなければ新規に作成する」** のプログラムを実行しています。すでにある場合は何も処理をしません。
 
 :::message
 ブラウザでphpMyAdminを開いてデータベース **「golarn」** が作られているかご確認ください。
 :::
 
+データベースの作成が成功すると下記のような文字列がコマンドラインに表示されていると思いますが、これは無視しておいて下さい。
+```
+&{0xc0000d42d0 <nil> 1 0xc0001ae1c0 0}
+```
+
 これでデータベースへの接続や作成はできました。ですが、まだ何もテーブルがありません。
-次の頁で**構造体を定義しテーブルを作成（マイグレーション）** していきます。
+次のページで**構造体を定義しテーブルを作成（マイグレーション）** していきます。
 
 その前に、現在の`main.go`はデータベースの接続確認と作成を行うだけの処理ですので、作成後はデータベースが削除されない限りは実行する必要はありません。
 
@@ -227,5 +240,5 @@ $ cd ~/golarn/initdb/
 go run initdb.go
 ```
 
-では、、次のページで構造体を定義しマイグレーションを行なっていきます。
+では、、構造体を定義しテーブルを作成（マイグレーション）する作業に進みましょう。
 
