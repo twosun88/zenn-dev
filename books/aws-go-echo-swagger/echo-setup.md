@@ -3,7 +3,7 @@ title: "Echoのインストールとセットアップ"
 free: false
 ---
 
-このページではGoのWebフレームワークを使用してWebサーバーを立ち上げます。
+このページではGoのWebフレームワーク EchoのインストールとAPIの開発に向けたセットアップを行います。
 
 ## Echoとは？
 GoのWebフレームワークです。**「High performance, extensible, minimalist Go web framework」** のキャッチコピーの通り、高性能かつ軽量なのが特徴です。
@@ -16,7 +16,7 @@ https://echo.labstack.com/
 $ go get github.com/labstack/echo/v4
 ```
 :::message alert
-何かエラーなどがでた場合は **go mod tidy** を実行して再度インストールを試してください。
+インストールの前後にエラーなどが起きましたら **go mod tidy** を実行してみてください。
 :::
 
 ## Webサーバーを起動する
@@ -70,11 +70,12 @@ ____________________________________O/_______
 **"Hi, We are Echo"** と表示されるはずです。
 
 :::message
-$ go run main.go実行後に **「アプリケーション“main”へのネットワーク受信接続を許可しますか?」** などのダイアログが出た場合は、
-**e.Start(":1323")** の部分を **e.Start("localhost:1323")** に変えてから実行して下さい。
+お使いのPCの環境によっては、$ go run main.go実行後に **「アプリケーション“main”へのネットワーク受信接続を許可しますか?」** などのダイアログが出る場合があります。
+その場合は、**e.Start(":1323")** の部分を **e.Start("localhost:1323")** に変えてから実行して下さい。
 :::
 
-確認ができましたら`main.go`を編集していくつかURLを追加してみましょう。
+これでWebサーバーが起動できました。
+今度はページを増やしてみましょう。`main.go`を編集します。
 
 ```diff go:main.go
 package main
@@ -109,8 +110,7 @@ func main() {
 }
 ```
 編集できましたら、Echoを再起動します。
-ターミナルで「control + C」を入力し一度Echoを終了させ、`go run main.go`を実行します。
-Echoが再起動できましたらブラウザでそれぞれのURLにアクセスして表示を確認してみましょう。
+ターミナルで **「control + c」** を入力し、一度Echoを終了させてから、`go run main.go`を実行します。次に、ブラウザでそれぞれのURLにアクセスして、表示を確認してみましょう。
 
 下記の表のように表示されます。
 | URL | 表示 |
@@ -119,15 +119,14 @@ Echoが再起動できましたらブラウザでそれぞれのURLにアクセ�
 | http://localhost:1323/foo/ | I am Foo |
 | http://localhost:1323/bar/ | I am bar |
 
-簡単にページが増やせましたね。
-これで、Echoを使ってWebサーバーを起動することはできました。
+簡単にページが増やせてとても便利ですね。
 
-ですが、このまま開発を進めるにはちょっと不便ですので、代表的なEchoのミドルウェアである下記の2つを追加しておきます。
+これで、Echoを使ってWebサーバーを起動することはできましたが、開発を進めるにはこのままではちょっと不便ですので、代表的なEchoのミドルウェアである下記の2つを追加しておきます。
 
-#### Logger
+#### Loggerについて
 ユーザーエージェントやメソッド情報（GETやPOST）など様々なリクエスト時の情報が取得できます。
 
-#### Recover
+#### Recoverについて
 サーバーが予期しないエラーによりプログラムを停止させてしまっても、サーバーは落とさずエラーレスポンスを返せるようにリカバリーしてくれます。
 
 `main.go`を編集します。
@@ -176,11 +175,12 @@ func main() {
 {"time":"2022-02-23T15:35:39.478296+09:00","id":"","remote_ip":"::1","host":"localhost:1323","method":"GET","uri":"/bar/","user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36","status":200,"error":"","latency":10756,"latency_human":"10.756µs","bytes_in":0,"bytes_out":8}
 ```
 
-ミドルウェアではありませんが、最後にもう一つ、今は`main.go`を編集するたびにターミナルでEchoを再起動する必要があるので、効率がよくないと思います。
+ミドルウェアではありませんが、最後にもう一つ。
+今は`main.go`を編集するたびに **「control + cで終了→main.goを再度実行」** する必要があるので、面倒です。
 
-そこで、ファイルに変更があった場合、自動的にEchoが再起動（ホットリロード）できるように[Air](https://github.com/cosmtrek/air)とゆうパッケージを追加しておきます。
+そこで、ファイルに変更があった場合、**自動的にmain.goを実行（ホットリロード）** できるように、[Air](https://github.com/cosmtrek/air)とゆうパッケージを追加しておきます。
 
-まずは、「control + C」でEchoを終了し、下記のコマンドでAirをインストールします。
+まずは、**「control + c」** でEchoを終了し、下記のコマンドでAirをインストールします。
 ```
 $ go get github.com/cosmtrek/air
 ```
@@ -189,8 +189,8 @@ $ go get github.com/cosmtrek/air
 bashまたは、zshをどちらを使用しているかによって記述するファイルが変わってきますのでご自身の環境に合わせてください。
 
 ```
-# bashの場は、~/.bashrc または ~/.bash_profileに追記。
-# zshの場合は~/.zshrc または ~/.zprofileに追記。
+# bashの場は、~/.bashrc または ~/.bash_profileに下記を追記。
+# zshの場合は、~/.zshrc または ~/.zprofileに下記を追記。
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 ```
@@ -206,17 +206,18 @@ $ air -v
 
 ```
 
-ではホットリロードできてるか確認してみましょう。
+ではホットリロードができているか確認してみましょう。
 ターミナルで`air`と入力してAirを起動します。
 ```
 $ air
 ```
-ブラウザでhttp://localhost:1323にアクセスしてみましょう。今はまだ変更がありませんので、**"Hi, We are Echo"** と表示されるはずです。
+ブラウザでhttp://localhost:1323にアクセスしてみます。今はまだ変更がありませんので、**"Hi, We are Echo"** と表示されるはずです。
 
-次に、`main.go`の **"Hi, We are Echo"** を **"Hello, We are Echo"** に変更してみます。
+次に、`main.go`の **"Hi, We are Echo"** を **"Hello, We are Echo"** に変更し、保存します。
 再度ブラウザでhttp://localhost:1323にアクセスすると表示が変わっています。
 
-これで、いちいちファイルを変更するたびにEchoを再起動する必要がなくなりましたので効率がよくなりました。開発時はできるだけホットリロードの状態で開発を進めていきましょう。
+これで、いちいちファイルを変更するたびに **「control + cで終了→main.goを再度実行」の必要がなくなりました。**
+開発時はできるだけホットリロードの状態で開発を進めていきましょう。
 
 次のページからは、CRUD処理を実装していきます。
 
