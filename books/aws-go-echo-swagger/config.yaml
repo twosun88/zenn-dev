@@ -10,3 +10,5 @@ chapters:
   - gorm-migrate
   - godotenv
   - echo-setup
+  - organize
+  - crud
