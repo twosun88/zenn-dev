@@ -13,26 +13,25 @@ free: false
 $ go version
 go version go1.15.15 darwin/amd64
 ```
-3. 【golarn】ディレクトリを作成し移動する
-```
-$ cd ~/golarn/
-```
-4. 【golarn】内に【main.go】を作成し下記を記述
+3. `golarn`ディレクトリを作成し、その中に`main.go`を作成し、下記を記述
 ```go
 package main
 
 import (
-	"fmt"
+  "fmt"
 )
 
 func main() {
-	fmt.Println("Hello World")
+  fmt.Println("Hello World")
 }
 ```
-5. main.goを実行する（Hello World）が出力されればOK
+5. `golarn`ディレクトリに移動し`main.go`を実行する（Hello World）が出力されればOK
 ```
+# ディレクトリを移動する
+$ cd ~/golarn/
+
+# main.goを実行する
 $ go run main.go
-Hello World
 ```
 6. go.modを作成する（example-golarnは変更可）
 ```
@@ -66,40 +65,36 @@ go version go1.15.15 darwin/amd64
 ```
 
 ## セットアップ
-次に、この先で作業するディレクトリを作成して簡単なプログラムを動かしてみます。
+次に、この先で使用する開発用ディレクトリを作成して簡単なプログラムを動かしてみます。
 ディレクトリの作成場所はユーザーのホームディレクトリの配下であればどこでも構いません。
-今回はホームフォルダ直下に```golean```ディレクトリを作成し、その中に```main.go```ファイルを作ります。
+今回はホームフォルダ直下に`golean`ディレクトリを作成し、今後はこのディレクトリ内で作業していきます。
+
+では、簡単なプログラムを書いてGoを動かしてみましょう。
+`golean`ディレクトリの中に```main.go```ファイルを作ります。
 ```
 // 現時点でのディレクトリ構成
 ~/
  └─ golean/
      └─ main.go
 ```
-```golarn```ディレクトリにcdコマンドで移動しておきます。
-```
-# ディレクトリを移動する
-$ cd ~/golarn/
-```
-:::message alert
-今後は今作成した【golarn】ディレクトリ内でコマンドを実行します。
-コマンド入力時にエラーが出た際には、まずはどのディレクトリで実行しているかをご注意ください。
-:::
-一度、Goを動かして動作チェックしてみます。
-```main.go```を開いてお使いのエディタで下記を記述します。
+`main.go`を開いてお使いのエディタで下記を記述します。
 ```go:main.go
 package main
 
 import (
-	"fmt"
+  "fmt"
 )
 
 func main() {
-	fmt.Println("Hello World")
+  fmt.Println("Hello World")
 }
 ```
 単純に **"Hello World"** を出力するだけのプログラムです。
 では、実行してみましょう。
 ```
+# ディレクトリを移動する
+$ cd ~/golarn/
+
 # main.goを実行する
 $ go run main.go
 ```
@@ -110,6 +105,12 @@ Hello World
 ```
 
 これでGoの動作チェックは完了です。
+
+:::message alert
+今後は今作成した`golarn`ディレクトリ内でコマンドを実行します。
+コマンド入力時にエラーが出た際には、まずはどのディレクトリで実行しているかをご注意ください。
+:::
+
 
 つづいてモジュール管理のため```go.mod```を作成します。
 下記をコマンドラインに入力してください。
