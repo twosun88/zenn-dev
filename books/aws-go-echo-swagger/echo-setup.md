@@ -95,13 +95,13 @@ func main() {
     return c.String(200, "Hi, We are Echo")
   })
 
-+  // localhost:1323/foo/ へGETでアクセスした時の処理
-+  e.GET("/foo/", func(c echo.Context) error {
++  // localhost:1323/foo へGETでアクセスした時の処理
++  e.GET("/foo", func(c echo.Context) error {
 +    return c.String(200, "I am Foo")
 +  })
 
-+  // localhost:1323/bar/ へGETでアクセスした時の処理
-+  e.GET("/bar/", func(c echo.Context) error {
++  // localhost:1323/bar へGETでアクセスした時の処理
++  e.GET("/bar", func(c echo.Context) error {
 +    return c.String(200, "I am Bar")
 +  })
 
@@ -116,8 +116,8 @@ func main() {
 | URL | 表示 |
 | ---- | ---- |
 | http://localhost:1323 | Hi, We are Echo! |
-| http://localhost:1323/foo/ | I am Foo |
-| http://localhost:1323/bar/ | I am bar |
+| http://localhost:1323/foo | I am Foo |
+| http://localhost:1323/bar | I am bar |
 
 簡単にページが増やせてとても便利ですね。
 
@@ -153,13 +153,13 @@ func main() {
     return c.String(200, "Hi, We are Echo")
   })
 
-  // localhost:1323/foo/ へGETでアクセスした時の処理
-  e.GET("/foo/", func(c echo.Context) error {
+  // localhost:1323/foo へGETでアクセスした時の処理
+  e.GET("/foo", func(c echo.Context) error {
     return c.String(200, "I am Foo")
   })
 
-  // localhost:1323/bar/ へGETでアクセスした時の処理
-  e.GET("/bar/", func(c echo.Context) error {
+  // localhost:1323/bar へGETでアクセスした時の処理
+  e.GET("/bar", func(c echo.Context) error {
     return c.String(200, "I am Bar")
   })
 
@@ -219,5 +219,5 @@ $ air
 これで、いちいちファイルを変更するたびに **「control + cで終了→main.goを再度実行」の必要がなくなりました。**
 開発時はできるだけホットリロードの状態で開発を進めていきましょう。
 
-次のページからは、ディレクトリの整理とCRUD処理を実装していきます。
+次のページでは、CRUD処理を実装する前の準備を行います。
 
