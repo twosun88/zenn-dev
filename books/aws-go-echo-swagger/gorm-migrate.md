@@ -20,7 +20,8 @@ import (
 + // User 構造体を定義
 + type User struct {
 +   ID        int       `gorm:"autoIncrement"`
-+   Name      string    `gorm:"type:text; not null"`
++   Name      string    `gorm:"type:text;"`
++   Email     string    `gorm:"type:text; not null"`
 +   CreatedAt time.Time `gorm:"not null; autoCreateTime"`
 +   UpdatedAt time.Time `gorm:"not null; autoUpdateTime"`
 + }
@@ -28,7 +29,7 @@ import (
 + // UserTodo 構造体を定義
 + type UserTodo struct {
 +   ID         int       `gorm:"autoIncrement"`
-+   UserId     int       `gorm:"type:int; not null" validate:"required"`
++   UserId     int       `gorm:"type:int; not null"`
 +   TodoName   string    `gorm:"type:text; not null"`
 +   TodoStatus *bool     `gorm:"not null; default: 0"`
 +   CreatedAt  time.Time `gorm:"not null; autoCreateTime"`
@@ -84,9 +85,9 @@ $ go run main.go
 今回はシンプルに下記のようなテーブルを作成したいと思います。
 
 ##### テーブル名：users
-| id | name | created_at | updated_at |
-| ---- | ---- | ---- | ---- |
-| int | text | timestamp | timestamp |
+| id | name | email | created_at | updated_at |
+| ---- | ---- | ---- | ---- | ---- |
+| int | text | text | timestamp | timestamp |
 
 ##### テーブル名：user_todos
 | id | user_id | todo_name | todo_status | created_at | updated_at |
@@ -111,7 +112,8 @@ import (
 + // User 構造体を定義
 + type User struct {
 +   ID        int       `gorm:"autoIncrement"`
-+   Name      string    `gorm:"type:text; not null"`
++   Name      string    `gorm:"type:text;"`
++   Email     string    `gorm:"type:text; not null"`
 +   CreatedAt time.Time `gorm:"not null; autoCreateTime"`
 +   UpdatedAt time.Time `gorm:"not null; autoUpdateTime"`
 + }
@@ -119,7 +121,7 @@ import (
 + // UserTodo 構造体を定義
 + type UserTodo struct {
 +   ID         int       `gorm:"autoIncrement"`
-+   UserId     int       `gorm:"type:int; not null" validate:"required"`
++   UserId     int       `gorm:"type:int; not null"`
 +   TodoName   string    `gorm:"type:text; not null"`
 +   TodoStatus *bool     `gorm:"not null; default: 0"`
 +   CreatedAt  time.Time `gorm:"not null; autoCreateTime"`

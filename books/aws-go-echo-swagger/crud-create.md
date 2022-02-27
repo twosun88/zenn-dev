@@ -1,9 +1,9 @@
 ---
-title: "CRUDのCreate（POST）を実装する"
+title: "Create（POST）の実装"
 free: false
 ---
 
-このページではCRUDの実装を行い、Postmanで動作確認を行います。
+このページではCRUDのCreateの実装を行い、Postmanで動作確認を行います。
 
 ## CRUDとは？
 **Create, Read, Update, Delete** の頭文字を取った言葉で、データベースを操作する上での基本的な機能のことを指します。
@@ -19,27 +19,20 @@ free: false
 GETとPOSTリクエストだけでも更新や削除はできますが、今回はREST APIをモデルにしたAPIを作成しますので「POST、GET、PUT、DELETE」の全てを使います。
 :::
 
-## 構造体にタグを追加
+## 構造体にタグを追加する
 POSTやPUTで送られてきたJSONデータを受け取り、リターンするためには、構造体にタグを追加し、送られてくるデータと構造体をマッピングする必要があります。
 まずは、`structs.go`を開き、構造体「User」にタグを追加します。
 
 ```diff go:structs/structs.go
 type User struct {
--  ID        int       `gorm:"autoIncrement"`
--  Name      string    `gorm:"type:text; not null"`
--  CreatedAt time.Time `gorm:"not null; autoCreateTime"`
--  UpdatedAt time.Time `gorm:"not null; autoUpdateTime"`
-}
-
-type User struct {
 +  ID        int       `gorm:"autoIncrement" json:"id"`
-+  Name      string    `gorm:"type:text; not null" json:"name"`
++  Name      string    `gorm:"type:text;" json:"name"`
++  Email     string    `gorm:"type:text; not null" json:"email"`
 +  CreatedAt time.Time `gorm:"not null; autoCreateTime" json:"-"`
 +  UpdatedAt time.Time `gorm:"not null; autoUpdateTime" json:"-"`
 }
-
 ```
-IDやNameのフィールドに、**json:"id"、json:"name"** などを追加してマッピング完了です。
+IDやNameのフィールドに、**json:"name"、json:"email"** などを追加してマッピング完了です。
 これで送られてくるJSONデータの型をチェックできるようになりました。
 ちなみに、**json:"-"** となっているフィールドはリターン時に含まない設定です。
 
@@ -48,7 +41,7 @@ IDやNameのフィールドに、**json:"id"、json:"name"** などを追加し�
 構造体とデータのマッピングが終わったら「ユーザー登録」用の処理を書いていきます。
 
 **送られてきたデータの型をチェックして、** 問題なければ「users」テーブルへ登録します。
-今回、登録するのは「ユーザー名（name）」のみです。
+今回、登録するのは「ユーザー名（name）とメールアドレス（email）」の2つです。
 
 では、`main.go`を編集しましょう。
 変更箇所が多いので差分は非表示にしています。
@@ -102,7 +95,10 @@ func main() {
     }
 
     // データベースに登録するデータの作成
-    d := structs.User{Name: newUser.Name}
+    d := structs.User{
+      Name:  newUser.Name,
+      Email: newUser.Email,
+    }
 
     // データベースに登録する
     p := db.Create(&d)
@@ -121,35 +117,30 @@ func main() {
 }
 ```
 
-コメントにも記載してますが、上記のプログラムの動きは下記のようになっています。
-> 1. /usersへPOSTリクエストが送られてくる。
-> 2. データの型をチェックする（nameがstringであるか）
-> 3. 型が違っている場合、処理を中断しエラーを返す（ステータス 400）
-> 4. 問題なければデータベースへ接続しデータを登録する
-> 5. 登録が完了したら、登録したデータを返す（ステータス 200）
-
 では、**Postman**を使ってチェックしてみましょう。
 :::message
 MampまたはXamppを起動しておいて下さい。
 :::
 
-## Postmanで動作確認
-まずは、AirでWebサーバーを起動しっぱなしにしておきます
+## Postmanで動作確認する
+Postmanのインストールがまだの方は下記からインストールしてください。
+[https://www.postman.com/](https://www.postman.com/)
+
+まずは、Webサーバーを起動しっぱなしにしておくため、下記のコマンドをターミナルで入力します。
 ```
 $ air
 ```
 つづいて、Postmanで**http://localhost:1323/user**にPOSTでJSONデータを送信します。
-ここでは、**nameに"Taro"** を設定していますが、値はお好みで構いません。
 設定方法は下記の画像をご参考ください。
-![Postman](https://storage.googleapis.com/zenn-user-upload/ac116ca0183b-20220227.png)
-[大きい画像はこちら](https://storage.googleapis.com/zenn-user-upload/ac116ca0183b-20220227.png)
+<！！！POSTMANの画像！！！>
 
-送信したらPostmanのウィンドウ下部にレスポンスが表示されます。
+送信したらPostmanの画面下部にレスポンスが表示されます。
 下記のようなレスポンスが返ってきてると思います。
 ```json
 {
   "id": 1,
-  "name": " Taro"
+  "name": "Taro",
+  "email": "golan@example.com"
 }
 ```
 初めての登録なので当然、idは1が返ってきてますね。
@@ -157,23 +148,21 @@ CreatedAtとUpdatedAtはタグに**json:"-"** を指定したのでレスポン�
 
 ブラウザでphpMyAdminにアクセスしデータを確認してみると実際にデータが登録されているのが確認できます。
 
-これでひとまず、POST（Create）はできました。
+これでひとまず、登録する処理はできました。
 
-型の整合性チェックの動きも確認してみましょう。**nameはstring型なので、int型である数字を送信してみます。** PostmanでJSONデータ **"name:1"** と入力し送信します。
+型の整合性チェックの動きも確認してみましょう。**emailはstring型なので、int型である数字を送信してみます。** PostmanでJSONデータ **"email:1"** と変更し送信します。
 
 下記のようなエラーが返ってくれば、型のチェックが正常に動いていますので問題ありません。
 :::message alert
-"json: cannot unmarshal number into Go struct field User.name of type string"
+"json: cannot unmarshal number into Go struct field User.email of type string"
 :::
 
 型の整合性チェックはできましたが、今の段階だと1つ問題があります。
-**nameを必須に設定していないので、nameが空の場合でも登録できてしまいます。**
-これでは困りますよね。
-:::message
-確認されたい場合は、Postmanで **name:""** を送信してみください。
-:::
+**必須項目を設定していないので、空のデータが送られてきた場合でも登録できてしまいます。**
+これでは困りますよね。（確認する場合は、Postmanで **email:""** を送信してみください。）
 
-nameを必須に設定し、空だった場合はエラーを返す処理を追加したいと思います。
+**emailを必須項目に設定し、値が空、または、メールアドレスの形式が正しくない場合は、**
+エラーを返す処理を追加します。
 
 
 ## Validatorをインストールする
@@ -183,16 +172,17 @@ $ go get github.com/go-playground/validator/v10
 ```
 https://github.com/go-playground/validator
 
-インストールが完了したら、まずは **validate:"required"** タグをNameフィールドに追加します。
+インストールが完了したら、まずはEmailフィールドに **validate:"required"** タグを追加します。
 ```diff go:structs/structs.go
 type User struct {
 }
 
 type User struct {
-ID        int       `gorm:"autoIncrement" json:"id"`
-+  Name      string    `gorm:"type:text; not null" json:"name" validate:"required"`
-CreatedAt time.Time `gorm:"not null; autoCreateTime" json:"-"`
-UpdatedAt time.Time `gorm:"not null; autoUpdateTime" json:"-"`
+  ID        int       `gorm:"autoIncrement" json:"id"`
+  Name      string    `gorm:"type:text; not null" json:"name"`
++ Email     string    `gorm:"type:text; not null" json:"email" validate:"required"`
+  CreatedAt time.Time `gorm:"not null; autoCreateTime" json:"-"`
+  UpdatedAt time.Time `gorm:"not null; autoUpdateTime" json:"-"`
 }
 ```
 つづいて、`main.go`にvalidatorをインポートし処理を追加します。
@@ -244,7 +234,7 @@ func main() {
       return c.JSON(400, err.Error())
     }
 
-+    // 必須項目（name）の値が空かチェック。空の場合エラーを返す。
++    // emailの値のチェック。空もしくはメールアドレスとして正しくない場合はエラーを返す。
 +    if err := c.Validate(newUser); err != nil {
 +      return c.JSON(400, err.Error())
 +    }
@@ -261,7 +251,10 @@ func main() {
     }
 
     // データベースに登録するデータの作成
-    d := structs.User{Name: newUser.Name}
+    d := structs.User{
+      Name:  newUser.Name,
+      Email: newUser.Email,
+    }
 
     // データベースに登録する
     p := db.Create(&d)
@@ -279,24 +272,35 @@ func main() {
   e.Logger.Fatal(e.Start("localhost:1323"))
 }
 ```
-これで、**nameが空**の場合はエラーを返す処理ができました。
-試しにPostmanで、**name: ""** を送信してみて、下記のようなエラーが返って来ればバリデーションがちゃんと動いています。
+これで、**emailの値が空、またはメールアドレス形式が正しくない** 場合はエラーを返す処理ができました。
 
+Postmanで、**email: ""** （空の値）、**email: "golarnexample.com"** （@マークがない状態）の2パターンを送信して動きをチェックしてみましょう。
+
+それぞれ、下記のエラーが返ってきます。
+
+##### ■値が空の場合
 :::message alert
 "Key: 'User.Name' Error:Field validation for 'Name' failed on the 'required' tag"
 :::
 
-ここでCreate処理の流れをおさらいしてみましょう。
-> 1. /usersへPOSTリクエストが送られてくる。
-> 2. データの型をチェックする（nameがstringであるか）
-> 3. 型が違っている場合、処理を中断しエラーを返す（ステータス 400）
-> 4. バリデーションエラーの場合、処理を中断しエラーを返す（ステータス 400）
-> 5. 問題なければデータベースへ接続しデータを登録する
-> 6. 登録が完了したら、登録したデータを返す（ステータス 200）
+##### ■メールアドレスの形式が正しくない場合
+:::message alert
+"Key: 'User.Email' Error:Field validation for 'Email' failed on the 'email' tag"
+:::
 
-5つのステップが6つになりました。
+これで、バリデーションの処理が追加できました。
+
+最後に、Create処理の流れをおさらいしてみましょう。
+> 1. /usersへPOSTリクエストが送られてくる。
+> 2. データの型をチェックする（name、emailがstringか？）
+> 3. 型が違っている場合、処理を中断しエラーを返す（ステータス 400）
+> 4. バリデーションチェック（emailが空、またはメールアドレスの形式が正しいか？）
+> 5. バリデーションエラーの場合、処理を中断しエラーを返す（ステータス 400）
+> 6. 問題なければデータベースへ接続しデータを登録する
+> 7. 登録が完了したら、登録したデータを返す（ステータス 200）
 
 これで、CRUDの内のCreate（POST）は完了です。
-型や必須項目、データ名などが構造体からわかるので、データベースの構造がすぐに把握できると思います。私がGoを選んだ最大の要因はここです。
+型や必須項目、データ名などが、構造体から一目でわかると思います。
+私がGoを選んだ最大の要因はここです。
 
 次は、Update（PUT）を実装していきます。

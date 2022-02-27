@@ -32,7 +32,8 @@ import "time"
 
 type User struct {
   ID        int       `gorm:"autoIncrement"`
-  Name      string    `gorm:"type:text; not null"`
+  Name      string    `gorm:"type:text;"`
+  Email     string    `gorm:"type:text; not null"`
   CreatedAt time.Time `gorm:"not null; autoCreateTime"`
   UpdatedAt time.Time `gorm:"not null; autoUpdateTime"`
 }
