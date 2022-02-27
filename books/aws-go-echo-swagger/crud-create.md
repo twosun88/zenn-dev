@@ -69,17 +69,17 @@ func main() {
   e.Use(middleware.Logger())
   e.Use(middleware.Recover())
 
-  // /usersへPostリクエストが来た時の処理
+  // /usersへのPOSTリクエスト時の処理
   e.POST("/users", func(c echo.Context) error {
 
-    newUser := new(structs.User)
+    user := new(structs.User)
 
     /*
       型の整合性チェック：送られてきたJSONデータをデコードし、型の整合性チェックする。
       OK： エラーを返す（ステータス 400）
-      NG： 送られてきたデータを、newUserにバインドする
+      NG： 送られてきたデータを、userにバインドする
     */
-    if err := json.NewDecoder(c.Request().Body).Decode(&newUser); err != nil {
+    if err := json.NewDecoder(c.Request().Body).Decode(&user); err != nil {
       return c.JSON(400, err.Error())
     }
 
@@ -96,8 +96,8 @@ func main() {
 
     // データベースに登録するデータの作成
     d := structs.User{
-      Name:  newUser.Name,
-      Email: newUser.Email,
+      Name:  user.Name,
+      Email: user.Email,
     }
 
     // データベースに登録する
@@ -175,9 +175,6 @@ https://github.com/go-playground/validator
 インストールが完了したら、まずはEmailフィールドに **validate:"required"** タグを追加します。
 ```diff go:structs/structs.go
 type User struct {
-}
-
-type User struct {
   ID        int       `gorm:"autoIncrement" json:"id"`
   Name      string    `gorm:"type:text; not null" json:"name"`
 + Email     string    `gorm:"type:text; not null" json:"email" validate:"required"`
@@ -220,22 +217,25 @@ func main() {
 +  // バリデーター登録
 +  e.Validator = &CustomValidator{validator: validator.New()}
 
-  // /usersへPostリクエストが来た時の処理
+  // /usersへのPOSTリクエスト時の処理
   e.POST("/users", func(c echo.Context) error {
 
-    newUser := new(structs.User)
+    user := new(structs.User)
 
     /*
       型の整合性チェック：送られてきたJSONデータをデコードし、型の整合性チェックする。
       OK： エラーを返す（ステータス 400）
-      NG： 送られてきたデータを、newUserにバインドする
+      NG： 送られてきたデータを、userにバインドする
     */
-    if err := json.NewDecoder(c.Request().Body).Decode(&newUser); err != nil {
+    if err := json.NewDecoder(c.Request().Body).Decode(&user); err != nil {
       return c.JSON(400, err.Error())
     }
 
-+    // emailの値のチェック。空もしくはメールアドレスとして正しくない場合はエラーを返す。
-+    if err := c.Validate(newUser); err != nil {
++    /*
++     emailの値をチェックする。
++     空もしくはメールアドレスとして正しくない場合はエラーを返す。
++    */
++    if err := c.Validate(user); err != nil {
 +      return c.JSON(400, err.Error())
 +    }
 
@@ -252,8 +252,8 @@ func main() {
 
     // データベースに登録するデータの作成
     d := structs.User{
-      Name:  newUser.Name,
-      Email: newUser.Email,
+      Name:  user.Name,
+      Email: user.Email,
     }
 
     // データベースに登録する
@@ -274,7 +274,8 @@ func main() {
 ```
 これで、**emailの値が空、またはメールアドレス形式が正しくない** 場合はエラーを返す処理ができました。
 
-Postmanで、**email: ""** （空の値）、**email: "golarnexample.com"** （@マークがない状態）の2パターンを送信して動きをチェックしてみましょう。
+Postmanで**email: "" （空の値）、email: "golarnexample.com" （@マークがない状態）** の
+2パターンを送信して動きをチェックしてみましょう。
 
 それぞれ、下記のエラーが返ってきます。
 
@@ -296,11 +297,11 @@ Postmanで、**email: ""** （空の値）、**email: "golarnexample.com"** （@
 > 3. 型が違っている場合、処理を中断しエラーを返す（ステータス 400）
 > 4. バリデーションチェック（emailが空、またはメールアドレスの形式が正しいか？）
 > 5. バリデーションエラーの場合、処理を中断しエラーを返す（ステータス 400）
-> 6. 問題なければデータベースへ接続しデータを登録する
+> 6. バリデーションがOKならデータベースへ接続しデータを登録する
 > 7. 登録が完了したら、登録したデータを返す（ステータス 200）
 
 これで、CRUDの内のCreate（POST）は完了です。
 型や必須項目、データ名などが、構造体から一目でわかると思います。
 私がGoを選んだ最大の要因はここです。
 
-次は、Update（PUT）を実装していきます。
+次は、Read（GET）を実装していきます。

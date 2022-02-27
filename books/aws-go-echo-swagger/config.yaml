@@ -12,4 +12,5 @@ chapters:
   - echo-setup
   - organize
   - crud-create
+  - crud-read
   - crud-update
