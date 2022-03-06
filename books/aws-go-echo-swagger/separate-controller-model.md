@@ -5,6 +5,353 @@ free: false
 
 このページでは処理を役割毎に分割しコントローラーとモデルを作成します。
 
+<!-- Step -->
+:::details 手順だけ見たい方はこちら
+1. ##### controllersとmodelsディレクトリを作り、その中に新規ファイルを作成
+```
+// 現時点でのディレクトリ構成
+~/
+ └─ golean/
+     ├─ constrollers/ // 追加
+         └─ controllers.go // 追加
+     ├─ initdb/
+         └─ initdb.go
+     ├─ migrate/
+         └─ migrate.go
+     ├─ models/ // 追加
+         └─ models.go // 追加
+     ├─ structs/
+         └─ structs.go
+     ├─ utilities/
+         └─ utilities.go
+     ├─ go.mod
+     └─ main.go
+```
+
+2. ##### `main.go`を編集する
+```diff go:main.go
+package main
+
+import (
+  "encoding/json"
++  "example-golarn/controllers" // controller読み込み
+  "example-golarn/structs"
+  "example-golarn/utilities"
+
+
+  "github.com/go-playground/validator/v10"
+  "github.com/labstack/echo/v4"
+  "github.com/labstack/echo/v4/middleware"
+)
+
+type CustomValidator struct {
+  validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i interface{}) error {
+  return cv.validator.Struct(i)
+}
+
+func main() {
+
+  e := echo.New()
+
+  // ミドルウェア追加
+  e.Use(middleware.Logger())
+  e.Use(middleware.Recover())
+
+  e.Validator = &CustomValidator{validator: validator.New()}
+
++  // /usersへPOSTリクエストが来たら、controllers.goのPost関数を実行
++  e.POST("/users", controllers.Post)
+
++  // /usersへGETリクエストが来たら、controllers.goのGet関数を実行
++  e.GET("/users", controllers.Get)
+
++  // /usersへGETリクエストが来たら、controllers.goのPut関数を実行
++  e.PUT("/users", controllers.Put)
+
++  // /usersへGETリクエストが来たら、controllers.goのDelete関数を実行
++  e.DELETE("/users", controllers.Delete)
+
+  e.Logger.Fatal(e.Start("localhost:1323"))
+}
+```
+
+3. ##### `controllers.go`を編集する
+```go:controllers/controllers.go
+package controllers
+
+import (
+  "encoding/json"
+  "example-golarn/models"
+  "example-golarn/structs"
+
+  "github.com/labstack/echo/v4"
+)
+
+func Post(c echo.Context) error {
+
+  user := new(structs.User)
+
+  /*** エラーチェック ***/
+
+  // 送られてきたJSONデータをデコードし、型の整合性チェックする。
+  if err := json.NewDecoder(c.Request().Body).Decode(&user); err != nil {
+    return c.JSON(400, err.Error())
+  }
+
+  // 必須パラメータ（email）の値が空かチェック。空の場合エラーを返す。
+  if err := c.Validate(user); err != nil {
+    return c.JSON(400, err.Error())
+  }
+
+  /*** エラーがなければここから下の処理を実行する ***/
+
+  // models.goのPost関数を実行
+  r, err := models.Post(user)
+
+  // models.goのPost関数からの返り値にエラーがあるかチェック
+  if err != nil {
+    return c.JSON(400, err)
+  }
+
+  // エラーがなければmodels.goのPost関数からの返り値をリターンする
+  return c.JSON(200, r)
+}
+
+func Get(c echo.Context) error {
+
+  user := new(structs.User)
+
+  /*** エラーチェック ***/
+
+  // 送られてきたクエリデータの型の整合性チェックする。
+  if err := c.Bind(user); err != nil {
+    return c.JSON(400, err.Error())
+  }
+
+  // emailの値のチェック。空もしくはメールアドレスとして正しくない場合はエラーを返す。
+  if err := c.Validate(user); err != nil {
+    return c.JSON(400, err.Error())
+  }
+
+  // models.goのGet関数を実行
+  r, err := models.Get(user)
+
+  // models.goのGet関数からの返り値にエラーがあるかチェック
+  if err != nil {
+    return c.JSON(400, err)
+  }
+
+  // エラーがなければmodels.goのGet関数からの返り値をリターンする
+  return c.JSON(200, r)
+}
+
+func Put(c echo.Context) error {
+
+  user := new(structs.User)
+
+  /*** エラーチェック ***/
+
+  // 送られてきたJSONデータをデコードし、型の整合性チェックする。
+  if err := json.NewDecoder(c.Request().Body).Decode(&user); err != nil {
+    return c.JSON(400, err.Error())
+  }
+
+  // 必須パラメータ（email）の値が空かチェック。空の場合エラーを返す。
+  if err := c.Validate(user); err != nil {
+    return c.JSON(400, err.Error())
+  }
+
+  /*** エラーがなければここから下の処理を実行する ***/
+
+  // models.goのPost関数を実行
+  r, err := models.Put(user)
+
+  // models.goのPost関数からの返り値にエラーがあるかチェック
+  if err != nil {
+    return c.JSON(400, err)
+  }
+
+  // エラーがなければmodels.goのPut関数からの返り値をリターンする
+  return c.JSON(200, r)
+}
+
+func Delete(c echo.Context) error {
+
+  user := new(structs.User)
+
+  /*** エラーチェック ***/
+
+  // 送られてきたJSONデータをデコードし、型の整合性チェックする。
+  if err := json.NewDecoder(c.Request().Body).Decode(&user); err != nil {
+    return c.JSON(400, err.Error())
+  }
+
+  // emailの値のチェック。空もしくはメールアドレスとして正しくない場合はエラーを返す。
+  if err := c.Validate(user); err != nil {
+    return c.JSON(400, err.Error())
+  }
+
+  /*** エラーがなければここから下の処理を実行する ***/
+
+  // models.goのDelete関数を実行
+  r := models.Delete(user)
+
+  // models.goのDelete関数からの返り値にエラーがあるかチェック（正常時はnilが返ってくる）
+  if r != nil {
+    return c.JSON(400, r)
+  }
+
+  // エラーがなければmodels.goのDelete関数からの返り値はないので、文字列を出力
+  return c.JSON(200, "deleted")
+}
+```
+
+4. ##### `models.go`を編集する
+```go:models/models.go
+package models
+
+import (
+  "example-golarn/structs"
+  "example-golarn/utilities"
+)
+
+func Post(user *structs.User) (structs.User, error) {
+
+  var u structs.User
+
+  // データベース接続
+  db, err := utilities.DB()
+
+  // データベース接続エラー時の処理
+  if err != nil {
+    return u, err
+  }
+
+  // データベースに登録するデータの作成
+  u = structs.User{
+    Name:  user.Name,
+    Email: user.Email,
+  }
+
+  // データベースに登録する
+  p := db.Create(&u)
+
+  // データベース登録エラー時の処理
+  if err := p.Error; err != nil {
+    return u, p.Error
+  }
+
+  // 登録したデータを返す
+  return u, nil
+}
+
+func Get(user *structs.User) (structs.User, error) {
+
+  var u structs.User
+
+  // データベース接続
+  db, err := utilities.DB()
+
+  // データベース接続エラー時の処理
+  if err != nil {
+    return u, err
+  }
+
+  // 送られてきたメールアドレスでデータベースを検索しヒットしたレコードを変数 u に格納（なければ404を返す）
+  r := db.Where(&structs.User{Email: user.Email}).First(&u)
+
+  // データ取得エラー時の処理
+  if r.Error != nil {
+    return u, r.Error
+  }
+
+  // 取得したデータを返す
+  return u, nil
+}
+
+func Put(user *structs.User) (structs.User, error) {
+
+  var u structs.User
+
+  // データベース接続
+  db, err := utilities.DB()
+
+  // データベース接続エラー時の処理
+  if err != nil {
+    return u, err
+  }
+
+  // 送られてきたメールアドレスでデータベースを検索しヒットしたレコードを変数 u に格納（なければ404を返す）
+  r := db.Where(&structs.User{Email: user.Email}).First(&u)
+
+  // データ取得エラー時の処理
+  if r.Error != nil {
+    return u, r.Error
+  }
+
+  // 更新するデータの作成
+  d := structs.User{
+    Name:  user.Name,
+    Email: user.Email,
+  }
+
+  // u.IDでレコードを指定しデータを更新する
+  r = db.Model(&structs.User{ID: u.ID}).Updates(&d)
+
+  // 更新エラー時の処理
+  if r.Error != nil {
+    return u, r.Error
+  }
+
+  // 更新したデータを再取得する
+  r = db.Where(&structs.User{Email: user.Email}).First(&u)
+
+  // 更新したデータの再取得エラー時の処理
+  if r.Error != nil {
+    return u, r.Error
+  }
+
+  // 更新したデータを返す
+  return u, nil
+}
+
+func Delete(user *structs.User) error {
+
+  var u structs.User
+
+  // データベース接続
+  db, err := utilities.DB()
+
+  // データベース接続エラー時の処理
+  if err != nil {
+    return err
+  }
+
+  // 送られてきたメールアドレスでデータベースを検索しヒットしたレコードを変数 u に格納（なければ404を返す）
+  r := db.Where(&structs.User{Email: user.Email}).First(&u)
+
+  // データ取得エラー時の処理
+  if r.Error != nil {
+    return r.Error
+  }
+
+  // u.IDでレコードを指定しデータを削除する
+  r = db.Delete(&structs.User{}, "id = ?", u.ID)
+
+  // 削除エラー時の処理
+  if r.Error != nil {
+    return r.Error
+  }
+
+  // 削除したらnilを返す
+  return nil
+}
+```
+:::
+<!-- /Step -->
 ## コントローラーとモデルとは？
 先に「MVCモデル」について説明します。
 MVCは、アプリケーション設定を整理するための概念の一つで多くのフレームワークに取り入れられています。
@@ -24,7 +371,7 @@ MVCは、アプリケーション設定を整理するための概念の一つ�
 今回はAPIですので**Viewは不要です。ModelとControllerのみ作成**します。
 
 ## ディレクトリを作成する
-まずは、**controllersとmodels**ディレクトリを作り、そのなかにファイルを作成します。
+まずは、**controllersとmodels**ディレクトリを作り、その中に新規ファイルを作成します。
 ```
 // 現時点でのディレクトリ構成
 ~/
@@ -238,13 +585,13 @@ func main() {
   // /usersへPOSTリクエストが来たら、controllers.goのPost関数を実行
   e.POST("/users", controllers.Post)
 
-  // /usersへGETリクエストが来た時の処理
+  // /usersへGETリクエストが来たら、controllers.goのGet関数を実行
   e.GET("/users", controllers.Get)
 
-  // /usersへGETリクエストが来た時の処理
+  // /usersへGETリクエストが来たら、controllers.goのPut関数を実行
   e.PUT("/users", controllers.Put)
 
-  // /usersへDELETEリクエストが来た時の処理
+  // /usersへGETリクエストが来たら、controllers.goのDelete関数を実行
   e.DELETE("/users", controllers.Delete)
 
   e.Logger.Fatal(e.Start("localhost:1323"))
@@ -523,10 +870,9 @@ func Delete(user *structs.User) error {
 }
 ```
 
-これで全てのリクエストをコントローラーとモデルに分割できたので、ファイル毎の内容が薄くできましたね。
-1つのファイルの内容を薄くすることで、**"責任と関心の分離"** ができたのでプロジェクトの管理しやすくなったと思います。
+これで全てのリクエストをコントローラーとモデルに分割できたので、ファイル毎の内容を薄くできました。1つのファイルの内容を薄くすることで、**"責任と関心の分離"** ができたのでプロジェクトの管理がしやすくなったと思います。
 
-型の生合成チェックの処理や必須パラメータのチェックなどの共通処理を`utilities/utilities.go`にまとめてもいいですが、ここでは動きがわかりやすいようにあえてそのままにしています（ご興味がある方はぜひトライしてみてください）
+型の生合成チェックの処理や必須パラメータのチェックなどの共通処理を、`utilities/utilities.go`にまとめてもいいですが、ここでは動きがわかりやすいようにあえてそのままにしています（ご興味がある方はぜひトライしてみてください）
 
 これで、APIを作るプログラムの作成は全て完了です。
 次のページでは、プログラムとは関係ないですが、今作成したAPIのドキュメントを作ります。

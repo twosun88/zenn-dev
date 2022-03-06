@@ -6,7 +6,7 @@ free: false
 このページでは構造体を定義しGORMのマッピング機能を使ってマイグレーションを行います。
 <!-- Step -->
 :::details 手順だけ見たい方はこちら
-1. 構造体を定義する
+1. ##### 構造体を定義する
 ```diff go:main.go
 package main
 
@@ -61,12 +61,12 @@ func main() {
 }
 
 ```
-2. ```go run main.go```でマイグレーションを実行する
+2. ##### `go run main.go`でマイグレーションを実行する
 ```
 $ go run main.go
 ```
-3. MampまたはXamppのphpMyAdminの画面で確認する
-4. migrateディレクトリを作りそこにmain.goを複製してmigrate.goにリネームする
+3. ##### MampまたはXamppのphpMyAdminの画面で確認する
+4. ##### migrateディレクトリを作りそこにmain.goを複製してmigrate.goにリネームする
 ```
 // 現時点でのディレクトリ構成
 ~/

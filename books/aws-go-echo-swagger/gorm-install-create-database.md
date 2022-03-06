@@ -7,13 +7,13 @@ free: false
 
 <!-- Step -->
 :::details 手順だけ見たい方はこちら
-1. GORMとMySQL用のドライバをインストール
+1. ##### GORMとMySQL用のドライバをインストール
 ```
 $ go get github.com/jinzhu/gorm
 $ go get gorm.io/driver/mysql
 ```
-2. MySQLへの接続確認を行います。main.goを下記のように編集し```go run main.goで```実行
-※事前にMampまたはXamppを起動しておくこと。
+2. ##### MySQLへの接続確認。`main.go`を下記のように編集し`go run main.go`で実行
+（事前にMampまたはXamppを起動）
 ```go:main.go
 package main
 
@@ -42,7 +42,7 @@ func main() {
 
 }
 ```
-3. データベースを作成する
+3. ##### データベースを作成
 ```diff go:main.go
 package main
 
@@ -76,8 +76,8 @@ func main() {
 
 }
 ```
-4. MampまたはXamppのphpMyAdminの画面で確認する
-5. initdbディレクトリを作りそこにmain.goを複製してinitdb.goにリネームする
+4. ##### MampまたはXamppのphpMyAdminの画面で確認する
+5. ##### initdbディレクトリを作りそこにmain.goを複製してinitdb.goにリネームする
 ```
 // 現時点でのディレクトリ構成
 ~/

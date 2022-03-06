@@ -4,6 +4,111 @@ free: false
 ---
 
 このページではCRUDのDeleteの実装を行い、Postmanで動作確認を行います。
+<!-- Step -->
+:::details 手順だけ見たい方はこちら
+1. ##### `main.go`にDELETE用のエンドポイントを追加
+```diff go:main.go
+package main
+
+import (
+  "encoding/json"
+  "example-golarn/structs"
+  "example-golarn/utilities"
+
+  "github.com/go-playground/validator/v10"
+  "github.com/labstack/echo/v4"
+  "github.com/labstack/echo/v4/middleware"
+)
+
+// バリデーション用メソッド
+type CustomValidator struct {
+  validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i interface{}) error {
+  return cv.validator.Struct(i)
+}
+
+func main() {
+
+  e := echo.New()
+
+  // ミドルウェア追加
+  e.Use(middleware.Logger())
+  e.Use(middleware.Recover())
+
+  e.Validator = &CustomValidator{validator: validator.New()}
+
+  // /usersへPOSTリクエストが来た時の処理
+  e.POST("/users", func(c echo.Context) error {
+    〜 省略 〜
+  })
+
+  // /usersへGETリクエストが来た時の処理
+  e.GET("/users", func(c echo.Context) error {
+    〜 省略 〜
+  })
+
+  // /usersへPUTリクエストが来た時の処理
+  e.PUT("/users", func(c echo.Context) error {
+    〜 省略 〜
+  })
+
++ // /usersへDELETEリクエストが来た時の処理
++ e.DELETE("/users", func(c echo.Context) error {
++
++   user := new(structs.User)
++
++   /*** エラーチェック ***/
++
++   // 送られてきたJSONデータをデコードし、型の整合性チェックする。
++   if err := json.NewDecoder(c.Request().Body).Decode(&user); err != nil {
++     return c.JSON(400, err.Error())
++   }
++
++   // emailの値のチェック。空もしくはメールアドレスとして正しくない場合はエラーを返す。
++   if err := c.Validate(user); err != nil {
++     return c.JSON(400, err.Error())
++   }
++
++   /*** エラーがなければここから下の処理を実行する ***/
++
++   // データベース接続
++   db, err := utilities.DB()
++
++   // データベース接続エラー時の処理
++   if err != nil {
++     return c.JSON(400, err.Error())
++   }
++
++   // 送られてきたメールアドレスでデータベースを検索しヒットしたレコードを変数 u に格納（なければ404を返す）
++   var u structs.User
++   r := db.Where(&structs.User{Email: user.Email}).First(&u)
++
++   // データ取得エラー時の処理
++   if r.Error != nil {
++     return c.JSON(400, r.Error)
++   }
++
++   // u.IDでレコードを指定しデータを削除する
++   r = db.Delete(&structs.User{}, "id = ?", u.ID)
++
++   // 削除エラー時の処理
++   if r.Error != nil {
++     return r.Error
++   }
++
++   // 削除完了後にステータス200とメッセージを返す
++   return c.JSON(200, "deleted")
++
++ })
+
+  e.Logger.Fatal(e.Start("localhost:1323"))
+}
+```
+2. ##### Postmanで動作確認
+:::
+<!-- /Step -->
 
 ## Delete（DELETE）の実装
 データの削除（Delete）は、GETの時と同じようにDELETEリクエストで送られてきたJSONデータを受け取り、メールアドレスでデータベースを検索し、まず、データがあるか確認します。

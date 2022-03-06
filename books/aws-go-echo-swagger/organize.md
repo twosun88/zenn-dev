@@ -3,7 +3,150 @@ title: "構造体とデータベースに接続する処理を使い回しでき
 free: false
 ---
 
-このページでは今後の作業のために、構造体とデータベースに接続する処理を、別ファイルに移動し使い回せるようにします。
+このページでは今後の作業のために、構造体とデータベースに接続する処理を、別ファイルに移動し使い回せるようにしておきます。
+
+<!-- Step -->
+:::details 手順だけ見たい方はこちら
+1. ##### 構造体を別ファイル（structs/structs.go）に移す。
+```
+// 現時点でのディレクトリ構成
+~/
+ └─ golean/
+     ├─ initdb/
+         └─ initdb.go
+     ├─ migrate/
+         └─ migrate.go
+     ├─ structs/
+         └─ structs.go // 構造体は全てこのファイルにまとめる
+     ├─ go.mod
+     └─ main.go
+```
+
+2. ##### structs.goの中に構造体を移動
+```go:/structs/structs.go
+package structs
+
+import "time"
+
+type User struct {
+  ID        int       `gorm:"autoIncrement"`
+  Name      string    `gorm:"type:text;"`
+  Email     string    `gorm:"type:text; not null"`
+  CreatedAt time.Time `gorm:"not null; autoCreateTime"`
+  UpdatedAt time.Time `gorm:"not null; autoUpdateTime"`
+}
+
+type UserTodo struct {
+  ID         int       `gorm:"autoIncrement"`
+  UserId     int       `gorm:"type:int; not null"`
+  TodoName   string    `gorm:"type:text; not null"`
+  TodoStatus *bool     `gorm:"not null; default: 0"`
+  CreatedAt  time.Time `gorm:"not null; autoCreateTime"`
+  UpdatedAt  time.Time `gorm:"not null; autoUpdateTime"`
+}
+```
+
+3. ##### データベースへ接続する処理を`utilities/utilities.go`に移動し関数化する
+```
+// 現時点でのディレクトリ構成
+~/
+ └─ golean/
+     ├─ initdb/
+         └─ initdb.go
+     ├─ migrate/
+         └─ migrate.go
+     ├─ structs/
+         └─ structs.go
+     ├─ utilities/
+         └─ utilities.go // よく使用する関数などをこのファイルに記述
+     ├─ go.mod
+     └─ main.go
+```
+```go: utilities/utilities.go
+package utilities
+
+import (
+  "os"
+
+  "github.com/joho/godotenv"
+  "gorm.io/driver/mysql"
+  "gorm.io/gorm"
+)
+
+// データベースへの接続処理の関数
+func DB() (*gorm.DB, error) {
+
+  err := godotenv.Load("../.env")
+
+  if err != nil {
+    panic("Error loading .env file")
+  }
+
+  user := os.Getenv("DB_USER")
+  pass := os.Getenv("DB_PASS")
+  host := os.Getenv("DB_HOST")
+  port := os.Getenv("DB_PORT")
+  name := os.Getenv("DB_NAME")
+
+  dsn := user + ":" + pass + "@tcp(" + host + ":" + port + ")/" + name + "?charset=utf8mb4&parseTime=True&loc=Local"
+  db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+  if err != nil {
+    return db, err
+  }
+
+  return db, err
+}
+```
+4. ##### `migralte.go`から`structs.go`と`utilities.go`を読み込み。
+```diff go:migrate/migrate.go
+package main
+
+import (
++  "example-golarn/structs"
++  "example-golarn/utilities"
+
+-  "os"
+-  "github.com/joho/godotenv"
+-  "gorm.io/driver/mysql"
+-  "gorm.io/gorm"
+)
+
+func main() {
+
+-  err := godotenv.Load("../.env")
+-  if err != nil {
+-    panic("Error loading .env file")
+-  }
+
+-  user := os.Getenv("DB_USER")
+-  pass := os.Getenv("DB_PASS")
+-  host := os.Getenv("DB_HOST")
+-  port := os.Getenv("DB_PORT")
+-  name := os.Getenv("DB_NAME")
+
+-  dsn := user + ":" + pass + "@tcp(" + host + ":" + port + ")/" + name + "?charset=utf8mb4&parseTime=True&loc=Local"
+
++  // utilitis.goの中の関数を使用
++  db, err := utilities.DB()
+
+  if err != nil {
+    panic(err.Error())
+  }
+
++  // structs.goの中の構造体を使用してマイグレーションを行う
++  db.AutoMigrate(&structs.User{}, &structs.UserTodo{})
+
+}
+
+```
+5. ##### データベースから「usersとuser_todos」を削除しマイグレーションを実行
+```
+#usersとuser_todosテーブルを削除した後に`migrate.go`を実行する
+$ go run migrate.go
+```
+:::
+<!-- // Step -->
 
 ## 構造体を別ファイルに移す
 **「GORMでマイグレーションを実行する」** のページで`migrate.go`に定義した **「User、UserTodo」** の2つの構造体ですが、今後は他のファイルからも利用することになりますので、別ファイルにしておきます。

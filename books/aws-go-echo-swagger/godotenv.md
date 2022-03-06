@@ -1,17 +1,17 @@
 ---
-title: "データベース情報をgodotenvで読み込む"
+title: "データベース情報をgodotenvで.envから読み込む"
 free: false
 ---
 
 このページではデータベース情報を.envファイルから読み込み方法を説明します。
 <!-- Step -->
 :::details 手順だけ見たい方はこちら
-1. godotenvのインストール
+1. ##### godotenvのインストール
 ```
 $ go get github.com/joho/godotenv
 ```
 
-2. .envファイルを作成しデータベース情報を記述
+2. ##### .envファイルを作成しデータベース情報を記述
 ```
 // 現時点でのディレクトリ構成
 ~/
@@ -31,7 +31,7 @@ DB_USER = root
 DB_PASS = 1234
 DB_NAME = golarn
 ```
-3. .envファイルからデータベース情報を読む込むように/initdb/initdb.goを編集。
+3. ##### .envファイルからデータベース情報を読む込むように/initdb/initdb.goを編集。
 ```diff go:initdb/initdb.go
 package main
 
@@ -85,11 +85,11 @@ func main() {
 
 }
 ```
-4. ブラウザでphpMyAdminを開き「golarn」を削除
-5. ```initdb.go```を実行
-6. 再度ブラウザでphpMyAdminを開き、「golarn」が再度作成されていればOK。
+4. ##### ブラウザでphpMyAdminを開き「golarn」を削除
+5. ##### `initdb.go` を実行
+6. ##### 再度ブラウザでphpMyAdminを開き、「golarn」が再度作成されていればOK。
 
-7. 3〜6の同様の処理を/migrate/migrate.goでも行う。
+7. ##### 3〜6の同様の処理を/migrate/migrate.goでも行う。
 ```diff go:migrate/migrate.go
 package main
 
@@ -159,9 +159,9 @@ func main() {
 }
 
 ```
-8. ブラウザでphpMyAdminを開きを「usersとuser_todos」テーブルを削除
-9. ```migrate.go```を実行。
-10. 再度ブラウザでphpMyAdminを開き「usersとuser_todos」テーブルが再度作成されていればOK。
+8. ##### ブラウザでphpMyAdminを開きを「usersとuser_todos」テーブルを削除
+9. ##### `migrate.go`を実行。
+10. ##### 再度ブラウザでphpMyAdminを開き「usersとuser_todos」テーブルが再度作成されていればOK。
 
 :::
 ## godotenvとは？

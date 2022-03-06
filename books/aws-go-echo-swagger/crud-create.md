@@ -5,6 +5,197 @@ free: false
 
 このページではCRUDのCreateの実装を行い、Postmanで動作確認を行います。
 
+<!-- Step -->
+:::details 手順だけ見たい方はこちら
+1. ##### 構造体にタグを追加する
+```diff go:structs/structs.go
+type User struct {
++  ID        int       `gorm:"autoIncrement" json:"id"`
++  Name      string    `gorm:"type:text;" json:"name"`
++  Email     string    `gorm:"type:text; not null" json:"email"`
++  CreatedAt time.Time `gorm:"not null; autoCreateTime" json:"-"`
++  UpdatedAt time.Time `gorm:"not null; autoUpdateTime" json:"-"`
+}
+```
+
+2. ##### Create（POST）の実装
+```go:main.go
+package main
+
+import (
+  "encoding/json"
+  "example-golarn/structs"
+  "example-golarn/utilities"
+
+  "github.com/labstack/echo/v4"
+  "github.com/labstack/echo/v4/middleware"
+)
+
+
+func main() {
+
+  e := echo.New()
+
+  // ミドルウェア追加
+  e.Use(middleware.Logger())
+  e.Use(middleware.Recover())
+
+  // /usersへのPOSTリクエスト時の処理
+  e.POST("/users", func(c echo.Context) error {
+
+    user := new(structs.User)
+
+    /*
+      型の整合性チェック：送られてきたJSONデータをデコードし、型の整合性チェックする。
+      OK： エラーを返す（ステータス 400）
+      NG： 送られてきたデータを、userにバインドする
+    */
+    if err := json.NewDecoder(c.Request().Body).Decode(&user); err != nil {
+      return c.JSON(400, err.Error())
+    }
+
+    /*
+      型チェックがOKなら下記の処理を実行していく
+    */
+    // データベース接続
+    db, err := utilities.DB()
+
+    // データベース接続エラー時の処理
+    if err != nil {
+      return c.JSON(400, err.Error())
+    }
+
+    // データベースに登録するデータの作成
+    d := structs.User{
+      Name:  user.Name,
+      Email: user.Email,
+    }
+
+    // データベースに登録する
+    p := db.Create(&d)
+
+    // データベース登録エラー時の処理
+    if err := p.Error; err != nil {
+      return c.JSON(400, err.Error())
+    }
+
+    // 登録したデータを返す
+    return c.JSON(200, d)
+
+  })
+
+  e.Logger.Fatal(e.Start("localhost:1323"))
+}
+```
+
+3. ##### Postmanで動作確認
+
+4. ##### Validatorをインストールし、`structs.go`と`main.go`を編集
+```
+$ go get github.com/go-playground/validator/v10
+```
+```diff go:structs/structs.go
+type User struct {
+  ID        int       `gorm:"autoIncrement" json:"id"`
+  Name      string    `gorm:"type:text; not null" json:"name"`
++ Email     string    `gorm:"type:text; not null" json:"email" validate:"required"`
+  CreatedAt time.Time `gorm:"not null; autoCreateTime" json:"-"`
+  UpdatedAt time.Time `gorm:"not null; autoUpdateTime" json:"-"`
+}
+```
+```diff go:main.go
+package main
+
+import (
+  "encoding/json"
+  "example-golarn/structs"
+  "example-golarn/utilities"
+
++  "github.com/go-playground/validator/v10"
+  "github.com/labstack/echo/v4"
+  "github.com/labstack/echo/v4/middleware"
+)
+
++// バリデーション用メソッド
++ type CustomValidator struct {
++   validator *validator.Validate
++ }
+
++ func (cv *CustomValidator) Validate(i interface{}) error {
++   return cv.validator.Struct(i)
++ }
+
+func main() {
+
+  e := echo.New()
+
+  // ミドルウェア追加
+  e.Use(middleware.Logger())
+  e.Use(middleware.Recover())
+
++  // バリデーター登録
++  e.Validator = &CustomValidator{validator: validator.New()}
+
+  // /usersへのPOSTリクエスト時の処理
+  e.POST("/users", func(c echo.Context) error {
+
+    user := new(structs.User)
+
+    /*
+      型の整合性チェック：送られてきたJSONデータをデコードし、型の整合性チェックする。
+      OK： エラーを返す（ステータス 400）
+      NG： 送られてきたデータを、userにバインドする
+    */
+    if err := json.NewDecoder(c.Request().Body).Decode(&user); err != nil {
+      return c.JSON(400, err.Error())
+    }
+
++    /*
++     emailの値をチェックする。
++     空もしくはメールアドレスとして正しくない場合はエラーを返す。
++    */
++    if err := c.Validate(user); err != nil {
++      return c.JSON(400, err.Error())
++    }
+
+    /*
+      型チェック&バリデーションがOKなら下記の処理を実行していく
+    */
+    // データベース接続
+    db, err := utilities.DB()
+
+    // データベース接続エラー時の処理
+    if err != nil {
+      return c.JSON(400, err.Error())
+    }
+
+    // データベースに登録するデータの作成
+    d := structs.User{
+      Name:  user.Name,
+      Email: user.Email,
+    }
+
+    // データベースに登録する
+    p := db.Create(&d)
+
+    // データベース登録エラー時の処理
+    if err := p.Error; err != nil {
+      return c.JSON(400, err.Error())
+    }
+
+    // 登録したデータを返す
+    return c.JSON(200, d)
+
+  })
+
+  e.Logger.Fatal(e.Start("localhost:1323"))
+}
+```
+5. ##### Postmanでバリデーターの動作確認
+
+:::
+<!-- /Step -->
+
 ## CRUDとは？
 **Create, Read, Update, Delete** の頭文字を取った言葉で、データベースを操作する上での基本的な機能のことを指します。
 ブラウザからのリクエストと照らし合わせると下記の図のようになります。
@@ -45,9 +236,11 @@ IDやNameのフィールドに、**json:"name"、json:"email"** などを追加�
 
 では、`main.go`を編集しましょう。
 変更箇所が多いので差分は非表示にしています。
+
 :::message
 id、created_at、updated_atは自動的に設定されます。
 :::
+
 ```go:main.go
 package main
 

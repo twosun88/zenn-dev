@@ -7,13 +7,13 @@ free: false
 
 <!-- Step -->
 :::details 手順だけ見たい方はこちら
-1. [https://go.dev/dl/](https://go.dev/dl/) からGoをダウンロードしてインストールする
-2. インストール後のバージョン確認（バージョンが表示されればOK）
+1. ##### [https://go.dev/dl/](https://go.dev/dl/) からGoをダウンロードしてインストールする
+2. ##### インストール後のバージョン確認（バージョンが表示されればOK）
 ```
 $ go version
 go version go1.15.15 darwin/amd64
 ```
-3. `golarn`ディレクトリを作成し、その中に`main.go`を作成し、下記を記述
+3. ##### `golarn`ディレクトリを作成し、その中に`main.go`を作成し、下記を記述
 ```go
 package main
 
@@ -25,7 +25,7 @@ func main() {
   fmt.Println("Hello World")
 }
 ```
-5. `golarn`ディレクトリに移動し`main.go`を実行する（Hello World）が出力されればOK
+4. ##### `golarn`ディレクトリに移動し`main.go`を実行する（Hello World）が出力されればOK
 ```
 # ディレクトリを移動する
 $ cd ~/golarn/
@@ -33,11 +33,13 @@ $ cd ~/golarn/
 # main.goを実行する
 $ go run main.go
 ```
-6. go.modを作成する（example-golarnは変更可）
+
+5. ##### go.modを作成する（example-golarnは変更可）
 ```
 $ go mod init example-golarn/
 ```
-7. go mod init ~ を実行後に **「go: to add module requirements and sums:」** などのメッセージが表示されたら **go mod tidy** を実行
+
+6. ##### go mod init ~ を実行後に **「go: to add module requirements and sums:」** などのメッセージが表示されたら **go mod tidy** を実行
 ```
 $ go mod tidy
 ```
