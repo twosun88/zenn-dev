@@ -131,7 +131,7 @@ func Post(c echo.Context) error {
     return c.JSON(400, err.Error())
   }
 
-  // 必須パラメーター（email）の値が空かチェック。空の場合エラーを返す。
+  // 必須パラメータ（email）の値が空かチェック。空の場合エラーを返す。
   if err := c.Validate(user); err != nil {
     return c.JSON(400, err.Error())
   }
@@ -151,7 +151,7 @@ func Post(c echo.Context) error {
 }
 ```
 ほぼ`main.go`に記載されていた内容と変わりありません。
-`main.go`で行っていた型の整合性チェックや必須パラメーターチェックを担当し、問題なければ、`models.Post(user)`を実行します。
+`main.go`で行っていた型の整合性チェックや必須パラメータのチェックを担当し、問題なければ、`models.Post(user)`を実行します。
 
 では、`modesl.go`を作っていきましょう。
 
@@ -274,7 +274,7 @@ func Post(c echo.Context) error {
     return c.JSON(400, err.Error())
   }
 
-  // 必須パラメーター（email）の値が空かチェック。空の場合エラーを返す。
+  // 必須パラメータ（email）の値が空かチェック。空の場合エラーを返す。
   if err := c.Validate(user); err != nil {
     return c.JSON(400, err.Error())
   }
@@ -332,7 +332,7 @@ func Put(c echo.Context) error {
     return c.JSON(400, err.Error())
   }
 
-  // 必須パラメーター（email）の値が空かチェック。空の場合エラーを返す。
+  // 必須パラメータ（email）の値が空かチェック。空の場合エラーを返す。
   if err := c.Validate(user); err != nil {
     return c.JSON(400, err.Error())
   }
@@ -526,7 +526,7 @@ func Delete(user *structs.User) error {
 これで全てのリクエストをコントローラーとモデルに分割できたので、ファイル毎の内容が薄くできましたね。
 1つのファイルの内容を薄くすることで、**"責任と関心の分離"** ができたのでプロジェクトの管理しやすくなったと思います。
 
-型の生合成チェックの処理や必須パラメーターのチェックなどの共通処理を`utilities/utilities.go`にまとめてもいいですが、ここでは動きがわかりやすいようにあえてそのままにしています（ご興味がある方はぜひトライしてみてください）
+型の生合成チェックの処理や必須パラメータのチェックなどの共通処理を`utilities/utilities.go`にまとめてもいいですが、ここでは動きがわかりやすいようにあえてそのままにしています（ご興味がある方はぜひトライしてみてください）
 
 これで、APIを作るプログラムの作成は全て完了です。
 次のページでは、プログラムとは関係ないですが、今作成したAPIのドキュメントを作ります。
