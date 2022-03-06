@@ -1,6 +1,6 @@
-title: "Go（Echo）でAPIを作ってSwaggerでAPIドキュメントを作るまで。"
+title: "Go（GORM&Echo）でAPIを作る（初学者向け）"
 summary: "foo"
-topics: ["go", "API", "GORM", "Echo", "Swagger"]
+topics: ["go", "API", "GORM", "Echo", "MySQL"]
 published: false
 price: 500
 chapters:
@@ -16,4 +16,3 @@ chapters:
   - crud-update
   - crud-delete
   - separate-controller-model
-  - create-swagger

@@ -68,10 +68,10 @@ func main() {
 +  // /usersへGETリクエストが来たら、controllers.goのGet関数を実行
 +  e.GET("/users", controllers.Get)
 
-+  // /usersへGETリクエストが来たら、controllers.goのPut関数を実行
++  // /usersへPUTリクエストが来たら、controllers.goのPut関数を実行
 +  e.PUT("/users", controllers.Put)
 
-+  // /usersへGETリクエストが来たら、controllers.goのDelete関数を実行
++  // /usersへDELETEリクエストが来たら、controllers.goのDelete関数を実行
 +  e.DELETE("/users", controllers.Delete)
 
   e.Logger.Fatal(e.Start("localhost:1323"))
@@ -875,4 +875,4 @@ func Delete(user *structs.User) error {
 型の生合成チェックの処理や必須パラメータのチェックなどの共通処理を、`utilities/utilities.go`にまとめてもいいですが、ここでは動きがわかりやすいようにあえてそのままにしています（ご興味がある方はぜひトライしてみてください）
 
 これで、APIを作るプログラムの作成は全て完了です。
-次のページでは、プログラムとは関係ないですが、今作成したAPIのドキュメントを作ります。
+次のページはおまけです。読まなくてもかまいません。
