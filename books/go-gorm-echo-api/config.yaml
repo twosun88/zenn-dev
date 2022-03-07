@@ -16,3 +16,4 @@ chapters:
   - crud-update
   - crud-delete
   - separate-controller-model
+  - crud-update-todo-status

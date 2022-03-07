@@ -26,7 +26,7 @@ func main() {
 
   // データベース情報
   db_user := "root"
-  db_pass := "1234"
+  db_pass := "root"
   db_host := "localhost"
   db_port := "3306"
 
@@ -39,9 +39,49 @@ func main() {
   if err != nil {
     panic(err.Error())
   }
-
 }
 ```
+**@tcpで接続できない場合は、mysql.sockを使って@unix接続する**
+
+mysql.sockの場所が不明な場合は下記コマンドで確認。
+```
+$ mysql_config --socket
+/tmp/mysql.sock
+```
+
+```diff go:main.go
+package main
+
+import (
+  "gorm.io/driver/mysql"
+  "gorm.io/gorm"
+)
+
+func main() {
+
+  // データベース情報
+  db_user := "root"
+-  db_pass := "root"
+-  db_host := "localhost"
++  soket := "/Applications/MAMP/tmp/mysql/mysql.sock"
+  db_port := "3306"
+
+-  // @tcpで接続を無効化
+-  dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/?charset=utf8mb4&parseTime=True&loc=Local"
+
++  // @unixで接続
++  dsn := user + ":" + pass + "@unix(" + soket + ")/?charset=utf8mb4&parseTime=True&loc=Local"
+
+  // 接続開始
+  _, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+  // 接続失敗時はエラーを出力し、成功時は何も出力しない。
+  if err != nil {
+    panic(err.Error())
+  }
+}
+```
+
 3. ##### データベースを作成
 ```diff go:main.go
 package main
@@ -55,7 +95,7 @@ func main() {
 
   // データベース情報
   db_user := "root"
-  db_pass := "1234"
+  db_pass := "root"
   db_host := "localhost"
   db_port := "3306"
 + db_name := "golearn" // DB名を追加
@@ -115,6 +155,9 @@ $ go get -u gorm.io/driver/mysql
 
 ```main.go```を下記のように編集します。
 ユーザー名やパスワードなどはご自身の環境に合わせてご変更ください。
+
+ちなみに、デフォルトのユーザー名とパスワードはMAMPだと`ユーザー名：root、パスワード：root`、XAMPPは`ユーザー名：root、パスワード：なし`になってると思います。
+
 ```go:main.go
 package main
 
@@ -127,7 +170,7 @@ func main() {
 
   // データベース情報
   db_user := "root"
-  db_pass := "1234"
+  db_pass := "root"
   db_host := "localhost"
   db_port := "3306"
 
@@ -140,7 +183,6 @@ func main() {
   if err != nil {
     panic(err.Error())
   }
-
 }
 ```
 
@@ -158,8 +200,52 @@ panic: Error 1045: Access denied for user 'root'@'localhost' (using password: YE
 ```
 **panic: Error ~** と書かれてる部分が```main.go```に記載した失敗時の処理ですね。
 
+:::message alert
+**お使いのPCの環境によって@tcpで接続できない場合があります。**
+**その際は下記のようにmysql.sockを使って@unix接続に置き換えて勧めてください。**
+
+mysql.sockの場所が不明な場合は下記コマンドで確認できます。
+```
+$ mysql_config --socket
+/tmp/mysql.sock
+```
+
+```diff go:main.go
+package main
+
+import (
+  "gorm.io/driver/mysql"
+  "gorm.io/gorm"
+)
+
+func main() {
+
+  // データベース情報
+  db_user := "root"
+-  db_pass := "root"
+-  db_host := "localhost"
++  soket := "/Applications/MAMP/tmp/mysql/mysql.sock"
+  db_port := "3306"
+
+-  // @tcpで接続を無効化
+-  dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/?charset=utf8mb4&parseTime=True&loc=Local"
+
++  // @unixで接続
++  dsn := user + ":" + pass + "@unix(" + soket + ")/?charset=utf8mb4&parseTime=True&loc=Local"
+
+  // 接続開始
+  _, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+  // 接続失敗時はエラーを出力し、成功時は何も出力しない。
+  if err != nil {
+    panic(err.Error())
+  }
+}
+```
+:::
+
 ## データベースを作成する
-接続の確認ができましたので、次はデータベースを作成します。
+接続の確認ができましたら、次はデータベースを作成します。
 
 ```diff go:main.go
 package main
@@ -175,7 +261,7 @@ func main() {
 
   // データベース情報
   db_user := "root"
-  db_pass := "1234"
+  db_pass := "root"
   db_host := "localhost"
   db_port := "3306"
 + db_name := "golearn" // DB名を追加
@@ -205,10 +291,10 @@ $ go run main.go
 ```db.Exec("CREATE DATABASE IF NOT EXISTS " + db_name)``` の部分で、**「もしデータベースがなければ新規に作成する」** のプログラムを実行しています。すでにある場合は何も処理をしません。
 
 :::message
-ブラウザでphpMyAdminを開いてデータベース **「golearn」** が作られているかご確認ください。
+ブラウザでphpMyAdminを開きデータベース **「golearn」** が作られているかご確認ください。
 :::
 
-データベースの作成が成功すると下記のような文字列がコマンドラインに表示されていると思いますが、これは無視しておいて下さい。
+データベースの作成が成功すると下記のような文字列がコマンドラインに表示されていると思いますが、これは気にしないで大丈夫です。
 ```
 &{0xc0000d42d0 <nil> 1 0xc0001ae1c0 0}
 ```
@@ -240,5 +326,5 @@ $ cd ~/golearn/initdb/
 go run initdb.go
 ```
 
-では、、構造体を定義しテーブルを作成（マイグレーション）する作業に進みましょう。
+次に、構造体を定義しテーブルを作成（マイグレーション）する作業に進みましょう。
 

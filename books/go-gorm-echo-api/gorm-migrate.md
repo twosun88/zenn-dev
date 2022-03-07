@@ -40,7 +40,7 @@ func main() {
 
   // データベース情報
   db_user := "root"
-  db_pass := "1234"
+  db_pass := "root"
   db_host := "localhost"
   db_port := "3306"
   db_name := "golearn"
@@ -132,7 +132,7 @@ func main() {
 
   // データベース情報
   db_user := "root"
-  db_pass := "1234"
+  db_pass := "root"
   db_host := "localhost"
   db_port := "3306"
   db_name := "golearn"
