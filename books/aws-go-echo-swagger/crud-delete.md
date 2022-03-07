@@ -12,8 +12,8 @@ package main
 
 import (
   "encoding/json"
-  "example-golarn/structs"
-  "example-golarn/utilities"
+  "example-golearn/structs"
+  "example-golearn/utilities"
 
   "github.com/go-playground/validator/v10"
   "github.com/labstack/echo/v4"
@@ -134,8 +134,8 @@ package main
 
 import (
   "encoding/json"
-  "example-golarn/structs"
-  "example-golarn/utilities"
+  "example-golearn/structs"
+  "example-golearn/utilities"
 
   "github.com/go-playground/validator/v10"
   "github.com/labstack/echo/v4"

@@ -9,11 +9,11 @@ free: false
 :::details 手順だけ見たい方はこちら
 1. ##### GORMとMySQL用のドライバをインストール
 ```
-$ go get github.com/jinzhu/gorm
-$ go get gorm.io/driver/mysql
+$ go get -u gorm.io/gorm
+$ go get -u gorm.io/driver/mysql
 ```
 2. ##### MySQLへの接続確認。`main.go`を下記のように編集し`go run main.go`で実行
-（事前にMampまたはXamppを起動）
+（事前にMAMPまたはXAMPPを起動）
 ```go:main.go
 package main
 
@@ -58,7 +58,7 @@ func main() {
   db_pass := "1234"
   db_host := "localhost"
   db_port := "3306"
-+ db_name := "golarn" // DB名を追加
++ db_name := "golearn" // DB名を追加
 
   dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/?charset=utf8mb4&parseTime=True&loc=Local"
 
@@ -70,18 +70,18 @@ func main() {
     panic(err.Error())
   }
 
-+  // データベース：golarn を作成
++  // データベース：golearn を作成
 +  exec := db.Exec("CREATE DATABASE IF NOT EXISTS " + db_name)
 +  fmt.Println(exec)
 
 }
 ```
-4. ##### MampまたはXamppのphpMyAdminの画面で確認する
+4. ##### MAMPまたはXAMPPのphpMyAdminの画面で確認する
 5. ##### initdbディレクトリを作りそこにmain.goを複製してinitdb.goにリネームする
 ```
 // 現時点でのディレクトリ構成
 ~/
- └─ golean/
+ └─ golearn/
      ├─ initdb/
          └─ initdb.go // main.goを複製してinitdb.goにリネーム
      ├─ go.mod
@@ -101,16 +101,16 @@ https://gorm.io/ja_JP/docs/index.html
 今回はデータベースにMySQLを使用しますのでいっしょにドライバもインストールしておきます。
 
 ```
-$ go get github.com/jinzhu/gorm
-$ go get gorm.io/driver/mysql
+$ go get -u gorm.io/gorm
+$ go get -u gorm.io/driver/mysql
 ```
 
 ## 接続確認
 インストールが完了しましたらまずはローカルのMySQLに接続してみましょう。
-事前にMampまたはXamppを起動しておいてください。
+事前にMAMPまたはXAMPPを起動しておいてください。
 
 :::message
-この先はMampまたはXamppを起動しっぱなしにしておいて下さい。
+この先はMAMPまたはXAMPPを起動しっぱなしにしておいて下さい。
 :::
 
 ```main.go```を下記のように編集します。
@@ -178,7 +178,7 @@ func main() {
   db_pass := "1234"
   db_host := "localhost"
   db_port := "3306"
-+ db_name := "golarn" // DB名を追加
++ db_name := "golearn" // DB名を追加
 
   dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/?charset=utf8mb4&parseTime=True&loc=Local"
 
@@ -190,7 +190,7 @@ func main() {
     panic(err.Error())
   }
 
-+  // データベース：golarn を作成
++  // データベース：golearn を作成
 +  exec := db.Exec("CREATE DATABASE IF NOT EXISTS " + db_name)
 +  fmt.Println(exec)
 
@@ -205,7 +205,7 @@ $ go run main.go
 ```db.Exec("CREATE DATABASE IF NOT EXISTS " + db_name)``` の部分で、**「もしデータベースがなければ新規に作成する」** のプログラムを実行しています。すでにある場合は何も処理をしません。
 
 :::message
-ブラウザでphpMyAdminを開いてデータベース **「golarn」** が作られているかご確認ください。
+ブラウザでphpMyAdminを開いてデータベース **「golearn」** が作られているかご確認ください。
 :::
 
 データベースの作成が成功すると下記のような文字列がコマンドラインに表示されていると思いますが、これは無視しておいて下さい。
@@ -224,7 +224,7 @@ $ go run main.go
 ```
 // 現時点でのディレクトリ構成
 ~/
- └─ golean/
+ └─ golearn/
      ├─ initdb/
          └─ initdb.go // main.goを複製してinitdb.goにリネーム
      ├─ go.mod
@@ -234,7 +234,7 @@ $ go run main.go
 これで、データベースの接続・作成が必要な時は`initdb`ディレクトリに移動し、実行するだけでよい環境ができました。（下記参照）
 ```
 # ディレクトリを移動
-$ cd ~/golarn/initdb/
+$ cd ~/golearn/initdb/
 
 # 実行する
 go run initdb.go

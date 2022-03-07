@@ -121,8 +121,7 @@ func main() {
 $ go get github.com/cosmtrek/air
 ```
 ```
-# bashの場は、~/.bashrc または ~/.bash_profileに下記を追記。
-# zshの場合は、~/.zshrc または ~/.zprofileに下記を追記。
+# ~/.bashrc または ~/.bash_profileに下記を追記。
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 ```
@@ -317,11 +316,9 @@ $ go get github.com/cosmtrek/air
 ```
 
 続いて、PATHを通します。
-bashまたは、zshをどちらを使用しているかによって記述するファイルが変わってきますのでご自身の環境に合わせてください。
 
 ```
-# bashの場は、~/.bashrc または ~/.bash_profileに下記を追記。
-# zshの場合は、~/.zshrc または ~/.zprofileに下記を追記。
+# ~/.bashrc または ~/.bash_profileに下記を追記。
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOPATH/bin
 ```

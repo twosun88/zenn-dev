@@ -13,7 +13,7 @@ free: false
 $ go version
 go version go1.15.15 darwin/amd64
 ```
-3. ##### `golarn`ディレクトリを作成し、その中に`main.go`を作成し、下記を記述
+3. ##### `golearn`ディレクトリを作成し、その中に`main.go`を作成し、下記を記述
 ```go
 package main
 
@@ -25,18 +25,18 @@ func main() {
   fmt.Println("Hello World")
 }
 ```
-4. ##### `golarn`ディレクトリに移動し`main.go`を実行する（Hello World）が出力されればOK
+4. ##### `golearn`ディレクトリに移動し`main.go`を実行する（Hello World）が出力されればOK
 ```
 # ディレクトリを移動する
-$ cd ~/golarn/
+$ cd ~/golearn/
 
 # main.goを実行する
 $ go run main.go
 ```
 
-5. ##### go.modを作成する（example-golarnは変更可）
+5. ##### go.modを作成する（example-golearnは変更可）
 ```
-$ go mod init example-golarn/
+$ go mod init example-golearn/
 ```
 
 6. ##### go mod init ~ を実行後に **「go: to add module requirements and sums:」** などのメッセージが表示されたら **go mod tidy** を実行
@@ -76,7 +76,7 @@ go version go1.15.15 darwin/amd64
 ```
 // 現時点でのディレクトリ構成
 ~/
- └─ golean/
+ └─ golearn/
      └─ main.go
 ```
 `main.go`を開いてお使いのエディタで下記を記述します。
@@ -95,7 +95,7 @@ func main() {
 では、実行してみましょう。
 ```
 # ディレクトリを移動する
-$ cd ~/golarn/
+$ cd ~/golearn/
 
 # main.goを実行する
 $ go run main.go
@@ -109,7 +109,7 @@ Hello World
 これでGoの動作チェックは完了です。
 
 :::message alert
-今後は今作成した`golarn`ディレクトリ内でコマンドを実行します。
+今後は今作成した`golearn`ディレクトリ内でコマンドを実行します。
 コマンド入力時にエラーが出た際には、まずはどのディレクトリで実行しているかをご注意ください。
 :::
 
@@ -117,27 +117,27 @@ Hello World
 つづいてモジュール管理のため```go.mod```を作成します。
 下記をコマンドラインに入力してください。
 ```
-# example-golarnの部分はお好みで変更してもよい。
-$ go mod init example-golarn/
+# example-golearnの部分はお好みで変更してもよい。
+$ go mod init example-golearn/
 ```
+::: message
+$ go mod init ~ を実行後に **「go: to add module requirements and sums:」** などのメッセージが表示された場合は、コマンド **go mod tidy** を実行して下さい。
+:::
 
 ```go.mod```とゆうファイルが作成され中身は下記のようになっています。
 ```
-module example-golarn
+module example-golearn
 
 go 1.15
 ```
 
 これで今後インストールするGORMやEchoなどのモジュールを```go.mod```で管理することができるようになりました。
-::: message alert
-$ go mod init ~ を実行後に **「go: to add module requirements and sums:」** などのメッセージが表示された場合は、コマンド **go mod tidy** を実行して下さい。
-:::
 
-ここまでの```golarn```ディレクトリの中身は下記の構成になります。
+ここまでの```golearn```ディレクトリの中身は下記の構成になります。
 ```
 // 現時点でのディレクトリ構成
 ~/
- └─ golean/
+ └─ golearn/
      ├─ go.mod
      ├─ go.sum（ 環境によって生成されるため無くてもよい ）
      └─ main.go

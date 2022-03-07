@@ -24,8 +24,8 @@ package main
 
 import (
   "encoding/json"
-  "example-golarn/structs"
-  "example-golarn/utilities"
+  "example-golearn/structs"
+  "example-golearn/utilities"
 
   "github.com/go-playground/validator/v10"
   "github.com/labstack/echo/v4"
@@ -141,8 +141,8 @@ package main
 
 import (
   "encoding/json"
-  "example-golarn/structs"
-  "example-golarn/utilities"
+  "example-golearn/structs"
+  "example-golearn/utilities"
 
   "github.com/go-playground/validator/v10"
   "github.com/labstack/echo/v4"
@@ -240,7 +240,7 @@ func main() {
 ちゃんと、指定したメールアドレスのユーザー情報が返ってきてますね。
 
 型の整合性やメールアドレスの形式を確認したい場合は、前回と同じやり方でOKです。
-Postmanで、**email: ""** （空の値）、**email: "golarnexample.com"** （@マークがない状態）の2パターンを送信して動きをチェックしてみましょう。
+Postmanで、**email: ""** （空の値）、**email: "golearnexample.com"** （@マークがない状態）の2パターンを送信して動きをチェックしてみましょう。
 
 同じようにエラーメッセージが返ってくると思います。
 

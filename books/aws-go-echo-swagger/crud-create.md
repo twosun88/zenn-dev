@@ -24,8 +24,8 @@ package main
 
 import (
   "encoding/json"
-  "example-golarn/structs"
-  "example-golarn/utilities"
+  "example-golearn/structs"
+  "example-golearn/utilities"
 
   "github.com/labstack/echo/v4"
   "github.com/labstack/echo/v4/middleware"
@@ -108,8 +108,8 @@ package main
 
 import (
   "encoding/json"
-  "example-golarn/structs"
-  "example-golarn/utilities"
+  "example-golearn/structs"
+  "example-golearn/utilities"
 
 +  "github.com/go-playground/validator/v10"
   "github.com/labstack/echo/v4"
@@ -246,8 +246,8 @@ package main
 
 import (
   "encoding/json"
-  "example-golarn/structs"
-  "example-golarn/utilities"
+  "example-golearn/structs"
+  "example-golearn/utilities"
 
   "github.com/labstack/echo/v4"
   "github.com/labstack/echo/v4/middleware"
@@ -312,7 +312,7 @@ func main() {
 
 では、**Postman**を使ってチェックしてみましょう。
 :::message
-MampまたはXamppを起動しておいて下さい。
+MAMPまたはXAMPPを起動しておいて下さい。
 :::
 
 ## Postmanで動作確認する
@@ -382,8 +382,8 @@ package main
 
 import (
   "encoding/json"
-  "example-golarn/structs"
-  "example-golarn/utilities"
+  "example-golearn/structs"
+  "example-golearn/utilities"
 
 +  "github.com/go-playground/validator/v10"
   "github.com/labstack/echo/v4"
@@ -467,7 +467,7 @@ func main() {
 ```
 これで、**emailの値が空、またはメールアドレス形式が正しくない** 場合はエラーを返す処理ができました。
 
-Postmanで**email: "" （空の値）、email: "golarnexample.com" （@マークがない状態）** の
+Postmanで**email: "" （空の値）、email: "golearnexample.com" （@マークがない状態）** の
 2パターンを送信して動きをチェックしてみましょう。
 
 それぞれ、下記のエラーが返ってきます。

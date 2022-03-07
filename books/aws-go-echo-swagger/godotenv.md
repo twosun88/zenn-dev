@@ -15,7 +15,7 @@ $ go get github.com/joho/godotenv
 ```
 // 現時点でのディレクトリ構成
 ~/
- └─ golean/
+ └─ golearn/
      ├─ initdb/
          └─ initdb.go
      ├─ migrate/
@@ -29,7 +29,7 @@ DB_HOST = localhost
 DB_PORT = 3306
 DB_USER = root
 DB_PASS = 1234
-DB_NAME = golarn
+DB_NAME = golearn
 ```
 3. ##### .envファイルからデータベース情報を読む込むように/initdb/initdb.goを編集。
 ```diff go:initdb/initdb.go
@@ -52,7 +52,7 @@ func main() {
 -  db_pass := "root"
 -  db_host := "localhost"
 -  db_port := "3306"
--  db_name := "golarn"
+-  db_name := "golearn"
 
 +  // .envファイルを読み込む（相対パスで指定）
 +  err := godotenv.Load("../.env")
@@ -79,15 +79,15 @@ func main() {
     panic(err.Error())
   }
 
-  // データベース：golarn を作成
+  // データベース：golearn を作成
   exec := db.Exec("CREATE DATABASE IF NOT EXISTS " + name)
 	fmt.Println(exec)
 
 }
 ```
-4. ##### ブラウザでphpMyAdminを開き「golarn」を削除
+4. ##### ブラウザでphpMyAdminを開き「golearn」を削除
 5. ##### `initdb.go` を実行
-6. ##### 再度ブラウザでphpMyAdminを開き、「golarn」が再度作成されていればOK。
+6. ##### 再度ブラウザでphpMyAdminを開き、「golearn」が再度作成されていればOK。
 
 7. ##### 3〜6の同様の処理を/migrate/migrate.goでも行う。
 ```diff go:migrate/migrate.go
@@ -126,7 +126,7 @@ func main() {
 -  db_pass := "root"
 -  db_host := "localhost"
 -  db_port := "3306"
--  db_name := "golarn"
+-  db_name := "golearn"
 
 +  // .envファイルを読み込む（相対パスで指定）
 +  err := godotenv.Load("../.env")
@@ -179,7 +179,7 @@ $ go get github.com/joho/godotenv
 ```
 // 現時点でのディレクトリ構成
 ~/
- └─ golean/
+ └─ golearn/
      ├─ initdb/
          └─ initdb.go
      ├─ migrate/
@@ -194,7 +194,7 @@ DB_HOST = localhost
 DB_PORT = 3306
 DB_USER = root
 DB_PASS = 1234
-DB_NAME = golarn
+DB_NAME = golearn
 ```
 あとは、データベースのユーザー名などをこの.envファイルから呼び出すだけで、他は特に変わりありません。まずは、`initdb.go`を編集してみましょう。
 
@@ -218,7 +218,7 @@ func main() {
 -  db_pass := "root"
 -  db_host := "localhost"
 -  db_port := "3306"
--  db_name := "golarn"
+-  db_name := "golearn"
 
 +  // .envファイルを読み込む（相対パスで指定）
 +  err := godotenv.Load("../.env")
@@ -245,20 +245,20 @@ func main() {
     panic(err.Error())
   }
 
-  // データベース：golarn を作成
+  // データベース：golearn を作成
   exec := db.Exec("CREATE DATABASE IF NOT EXISTS " + name)
   fmt.Println(exec)
 
 }
 ```
 確認してみましょう。
-まずは、ブラウザで**phpMyAdminを開きデータベース「golarn」を削除します。**
+まずは、ブラウザで**phpMyAdminを開きデータベース「golearn」を削除します。**
 次に`initdb.go`を実行します。
 ```
 # initdb/ ディレクトリに移動し下記を実行。
 $ go run initdb.go
 ```
-実行後、再度ブラウザでphpMyAdminを開きデータベース「golarn」があるか確認します。
+実行後、再度ブラウザでphpMyAdminを開きデータベース「golearn」があるか確認します。
 作成されていれば.envからデータベース情報を正常に読み取りプログラムを実行できたことになります。
 
 同様の処理を`migrate.go`に行います。
@@ -298,7 +298,7 @@ func main() {
 -  db_pass := "root"
 -  db_host := "localhost"
 -  db_port := "3306"
--  db_name := "golarn"
+-  db_name := "golearn"
 
 +  // .envファイルを読み込む（相対パスで指定）
 +  err := godotenv.Load("../.env")

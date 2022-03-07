@@ -11,7 +11,7 @@ free: false
 ```
 // 現時点でのディレクトリ構成
 ~/
- └─ golean/
+ └─ golearn/
      ├─ initdb/
          └─ initdb.go
      ├─ migrate/
@@ -50,7 +50,7 @@ type UserTodo struct {
 ```
 // 現時点でのディレクトリ構成
 ~/
- └─ golean/
+ └─ golearn/
      ├─ initdb/
          └─ initdb.go
      ├─ migrate/
@@ -103,8 +103,8 @@ func DB() (*gorm.DB, error) {
 package main
 
 import (
-+  "example-golarn/structs"
-+  "example-golarn/utilities"
++  "example-golearn/structs"
++  "example-golearn/utilities"
 
 -  "os"
 -  "github.com/joho/godotenv"
@@ -155,7 +155,7 @@ $ go run migrate.go
 ```
 // 現時点でのディレクトリ構成
 ~/
- └─ golean/
+ └─ golearn/
      ├─ initdb/
          └─ initdb.go
      ├─ migrate/
@@ -197,7 +197,7 @@ type UserTodo struct {
 ```
 // 現時点でのディレクトリ構成
 ~/
- └─ golean/
+ └─ golearn/
      ├─ initdb/
          └─ initdb.go
      ├─ migrate/
@@ -257,8 +257,8 @@ Goでは定義した構造体や関数を外部から利用できるようにす
 package main
 
 import (
-+  "example-golarn/structs"
-+  "example-golarn/utilities"
++  "example-golearn/structs"
++  "example-golearn/utilities"
 
 -  "os"
 -  "github.com/joho/godotenv"

@@ -11,7 +11,7 @@ free: false
 ```
 // 現時点でのディレクトリ構成
 ~/
- └─ golean/
+ └─ golearn/
      ├─ constrollers/ // 追加
          └─ controllers.go // 追加
      ├─ initdb/
@@ -34,9 +34,9 @@ package main
 
 import (
   "encoding/json"
-+  "example-golarn/controllers" // controller読み込み
-  "example-golarn/structs"
-  "example-golarn/utilities"
++  "example-golearn/controllers" // controller読み込み
+  "example-golearn/structs"
+  "example-golearn/utilities"
 
 
   "github.com/go-playground/validator/v10"
@@ -84,8 +84,8 @@ package controllers
 
 import (
   "encoding/json"
-  "example-golarn/models"
-  "example-golarn/structs"
+  "example-golearn/models"
+  "example-golearn/structs"
 
   "github.com/labstack/echo/v4"
 )
@@ -214,8 +214,8 @@ func Delete(c echo.Context) error {
 package models
 
 import (
-  "example-golarn/structs"
-  "example-golarn/utilities"
+  "example-golearn/structs"
+  "example-golearn/utilities"
 )
 
 func Post(user *structs.User) (structs.User, error) {
@@ -375,7 +375,7 @@ MVCは、アプリケーション設定を整理するための概念の一つ�
 ```
 // 現時点でのディレクトリ構成
 ~/
- └─ golean/
+ └─ golearn/
      ├─ constrollers/ // 追加
          └─ controllers.go // 追加
      ├─ initdb/
@@ -401,9 +401,9 @@ package main
 
 import (
   "encoding/json"
-+  "example-golarn/controllers" // controller読み込み
-  "example-golarn/structs"
-  "example-golarn/utilities"
++  "example-golearn/controllers" // controller読み込み
+  "example-golearn/structs"
+  "example-golearn/utilities"
 
 
   "github.com/go-playground/validator/v10"
@@ -461,8 +461,8 @@ package controllers
 
 import (
   "encoding/json"
-  "example-golarn/models"
-  "example-golarn/structs"
+  "example-golearn/models"
+  "example-golearn/structs"
 
   "github.com/labstack/echo/v4"
 )
@@ -509,8 +509,8 @@ func Post(c echo.Context) error {
 package models
 
 import (
-  "example-golarn/structs"
-  "example-golarn/utilities"
+  "example-golearn/structs"
+  "example-golearn/utilities"
 )
 
 func Post(user *structs.User) (structs.User, error) {
@@ -557,7 +557,7 @@ POSTの動作確認できましたら、GET、PUT、DELETも同様に処理を�
 package main
 
 import (
-  "example-golarn/controllers"
+  "example-golearn/controllers"
 
   "github.com/go-playground/validator/v10"
   "github.com/labstack/echo/v4"
@@ -604,8 +604,8 @@ package controllers
 
 import (
   "encoding/json"
-  "example-golarn/models"
-  "example-golarn/structs"
+  "example-golearn/models"
+  "example-golearn/structs"
 
   "github.com/labstack/echo/v4"
 )
@@ -733,8 +733,8 @@ func Delete(c echo.Context) error {
 package models
 
 import (
-  "example-golarn/structs"
-  "example-golarn/utilities"
+  "example-golearn/structs"
+  "example-golearn/utilities"
 )
 
 func Post(user *structs.User) (structs.User, error) {
@@ -875,4 +875,4 @@ func Delete(user *structs.User) error {
 型の生合成チェックの処理や必須パラメータのチェックなどの共通処理を、`utilities/utilities.go`にまとめてもいいですが、ここでは動きがわかりやすいようにあえてそのままにしています（ご興味がある方はぜひトライしてみてください）
 
 これで、APIを作るプログラムの作成は全て完了です。
-次のページはおまけです。読まなくてもかまいません。
+最後にこれまで作ったプログラムをビルドしバイナリファイルを作って終わりにしたいと思います。
