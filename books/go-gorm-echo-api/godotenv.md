@@ -133,13 +133,6 @@ type UserTodo struct {
 
 func main() {
 
--  // 今まで使用していたデータベース情報は削除する
--  db_user := "root"
--  db_pass := "root"
--  db_host := "localhost"
--  db_port := "3306"
--  db_name := "golearn"
-
 +  // .envファイルを読み込む（相対パスで指定）
 +  err := godotenv.Load("../.env")
 
@@ -148,14 +141,21 @@ func main() {
 +    panic("Error loading .env file")
 +  }
 
-+  // .envファイルから環境変数を読み込む
-+  user := os.Getenv("DB_USER")
-+  pass := os.Getenv("DB_PASS")
-+  host := os.Getenv("DB_HOST")
-+  port := os.Getenv("DB_PORT")
-+  name := os.Getenv("DB_NAME")
+-  // 今まで使用していたデータベース情報は削除する
+-  db_user := "root"
+-  db_pass := "root"
+-  db_host := "localhost"
+-  db_port := "3306"
+-  db_name := "golearn"
 
-+  dsn := user + ":" + pass + "@tcp(" + host + ":" + port + ")/" + name + "?charset=utf8mb4&parseTime=True&loc=Local"
++  // .envファイルから環境変数を読み込む
++  db_user := os.Getenv("DB_USER")
++  db_pass := os.Getenv("DB_PASS")
++  db_host := os.Getenv("DB_HOST")
++  db_port := os.Getenv("DB_PORT")
++  db_name := os.Getenv("DB_NAME")
+
++  dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/" + db_name + "?charset=utf8mb4&parseTime=True&loc=Local"
 
   // 接続開始
   db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
