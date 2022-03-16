@@ -4,83 +4,8 @@ free: false
 ---
 
 このページでは構造体を定義しGORMのマッピング機能を使ってマイグレーションを行います。
-<!-- Step -->
-:::details 手順だけ見たい方はこちら
-1. ##### 構造体を定義する
-```diff go:main.go
-package main
 
-import (
-  "time"
-
-  "gorm.io/driver/mysql"
-  "gorm.io/gorm"
-)
-
-+ // User 構造体を定義
-+ type User struct {
-+   ID        int       `gorm:"autoIncrement"`
-+   Name      string    `gorm:"type:text;"`
-+   Email     string    `gorm:"type:text; not null"`
-+   CreatedAt time.Time `gorm:"not null; autoCreateTime"`
-+   UpdatedAt time.Time `gorm:"not null; autoUpdateTime"`
-+ }
-
-+ // UserTodo 構造体を定義
-+ type UserTodo struct {
-+   ID         int       `gorm:"autoIncrement"`
-+   UserId     int       `gorm:"type:int; not null"`
-+   TodoName   string    `gorm:"type:text; not null"`
-+   TodoStatus *bool     `gorm:"not null; default: 0"`
-+   CreatedAt  time.Time `gorm:"not null; autoCreateTime"`
-+   UpdatedAt  time.Time `gorm:"not null; autoUpdateTime"`
-+ }
-
-func main() {
-
-  // データベース情報
-  db_user := "root"
-  db_pass := "root"
-  db_host := "localhost"
-  db_port := "3306"
-  db_name := "golearn"
-
-  dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/" + db_name + "?charset=utf8mb4&parseTime=True&loc=Local"
-
-  // 接続開始
-  db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
-  // 接続失敗時はエラーを出力し、成功時は何も出力しない。
-  if err != nil {
-    panic(err.Error())
-  }
-
-+  // マイグレーション実行
-+  db.AutoMigrate(&User{}, &Todo{})
-
-}
-
-```
-2. ##### `go run main.go`でマイグレーションを実行する
-```
-$ go run main.go
-```
-3. ##### MAMPまたはXAMPPのphpMyAdminの画面で確認する
-4. ##### migrateディレクトリを作りそこにmain.goを複製してmigrate.goにリネームする
-```
-// 現時点でのディレクトリ構成
-~/
- └─ golearn/
-     ├─ initdb/
-         └─ initdb.go
-     ├─ migrate/
-         └─ migrate.go // main.goを複製してmigrate.goにリネーム
-     ├─ go.mod
-     └─ main.go
-```
-:::
-
-## マイグレーションしてテーブルを作成する
+## テーブルの構造を決める
 マイグレーションをする前に、まずはどのようなテーブルを作るかを決める必要があります。
 今回はシンプルに下記のようなテーブルを作成したいと思います。
 
@@ -96,10 +21,11 @@ $ go run main.go
 
 **ユーザーがいて、そのユーザーに紐づくToDo（todo_name）があり、そしてToDoの完了・未完了の状態（todo_status）** がある。とゆう状態ですね。
 
-テーブルが定義できましたら、構造体を作成していきます。
+## マイグレーションを実行する
+テーブルの定義ができましたら、構造体を作成しマッピングしていきます。
 `main.go`を下記のように編集します。
 
-```diff go:main.go
+```go:main.go
 package main
 
 import (
@@ -109,24 +35,24 @@ import (
   "gorm.io/gorm"
 )
 
-+ // User 構造体を定義
-+ type User struct {
-+   ID        int       `gorm:"autoIncrement"`
-+   Name      string    `gorm:"type:text;"`
-+   Email     string    `gorm:"type:text; not null"`
-+   CreatedAt time.Time `gorm:"not null; autoCreateTime"`
-+   UpdatedAt time.Time `gorm:"not null; autoUpdateTime"`
-+ }
+// User 構造体を定義
+type User struct {
+  ID        int       `gorm:"autoIncrement"`
+  Name      string    `gorm:"type:text;"`
+  Email     string    `gorm:"type:text; not null"`
+  CreatedAt time.Time `gorm:"not null; autoCreateTime"`
+  UpdatedAt time.Time `gorm:"not null; autoUpdateTime"`
+}
 
-+ // UserTodo 構造体を定義
-+ type UserTodo struct {
-+   ID         int       `gorm:"autoIncrement"`
-+   UserId     int       `gorm:"type:int; not null"`
-+   TodoName   string    `gorm:"type:text; not null"`
-+   TodoStatus *bool     `gorm:"not null; default: 0"`
-+   CreatedAt  time.Time `gorm:"not null; autoCreateTime"`
-+   UpdatedAt  time.Time `gorm:"not null; autoUpdateTime"`
-+ }
+// UserTodo 構造体を定義
+type UserTodo struct {
+  ID         int       `gorm:"autoIncrement"`
+  UserId     int       `gorm:"type:int; not null"`
+  TodoName   string    `gorm:"type:text; not null"`
+  TodoStatus *bool     `gorm:"not null; default: 0"`
+  CreatedAt  time.Time `gorm:"not null; autoCreateTime"`
+  UpdatedAt  time.Time `gorm:"not null; autoUpdateTime"`
+}
 
 func main() {
 
@@ -147,13 +73,14 @@ func main() {
     panic(err.Error())
   }
 
-+  // マイグレーション実行
-+  db.AutoMigrate(&User{}, &Todo{})
+  // マイグレーション実行
+  db.AutoMigrate(&User{}, &UserTodo{})
 
 }
 
 ```
-`main.go`の編集が終わりましたら```go run main.go```を実行して、ブラウザで**phpMyAdminを開き確認してみましょう。**
+`main.go`の編集が終わりましたら```go run main.go```を実行してマイグレーションしてみましょう。
+マイグレーションが完了したらブラウザで**phpMyAdminを開き確認してみましょう。**
 
 **データベース：golearnの中に「users」と「user_todos」テーブル**が作成されています。
 ![データベース](https://storage.googleapis.com/zenn-user-upload/87180ac99d6d-20220223.png)
@@ -217,6 +144,6 @@ go run migrate.go
 :::
 
 これはごもっともです。
-特に、実際の現場ではデータベース情報をファイルに直書きする、なんてことはまずありません（Githubなどに上げてしまった場合は大惨事です。Yahooニュースに流れます）
+特に、実際の現場ではデータベース情報をファイルに直書きする、なんてことはまずありません（Githubなどに上げてしまった場合は大惨事です。Yahoo!ニュースに流れます）
 
 これらを解決するために次に.envでからデータベース情報を読み込む方法を紹介します。

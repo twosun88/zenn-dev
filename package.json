@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/twosun88/zenn-dev#readme",
   "dependencies": {
-    "zenn-cli": "^0.1.107"
+    "zenn-cli": "^0.1.108"
   }
 }

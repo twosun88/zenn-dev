@@ -5,139 +5,13 @@ free: false
 
 このページではGORMをインストールして、データベースを作成します。
 
-<!-- Step -->
-:::details 手順だけ見たい方はこちら
-1. ##### GORMとMySQL用のドライバをインストール
-```
-$ go get -u gorm.io/gorm
-$ go get -u gorm.io/driver/mysql
-```
-2. ##### MySQLへの接続確認。`main.go`を下記のように編集し`go run main.go`で実行
-（事前にMAMPまたはXAMPPを起動）
-```go:main.go
-package main
-
-import (
-  "gorm.io/driver/mysql"
-  "gorm.io/gorm"
-)
-
-func main() {
-
-  // データベース情報
-  db_user := "root"
-  db_pass := "root"
-  db_host := "localhost"
-  db_port := "3306"
-
-  dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/?charset=utf8mb4&parseTime=True&loc=Local"
-
-  // 接続開始
-  _, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
-  // 接続失敗時はエラーを出力し、成功時は何も出力しない。
-  if err != nil {
-    panic(err.Error())
-  }
-}
-```
-**@tcpで接続できない場合は、mysql.sockを使って@unix接続する**
-
-mysql.sockの場所が不明な場合は下記コマンドで確認。
-```
-$ mysql_config --socket
-/tmp/mysql.sock
-```
-
-```diff go:main.go
-package main
-
-import (
-  "gorm.io/driver/mysql"
-  "gorm.io/gorm"
-)
-
-func main() {
-
-  // データベース情報
-  db_user := "root"
--  db_pass := "root"
--  db_host := "localhost"
-+  soket := "/Applications/MAMP/tmp/mysql/mysql.sock"
-  db_port := "3306"
-
--  // @tcpで接続を無効化
--  dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/?charset=utf8mb4&parseTime=True&loc=Local"
-
-+  // @unixで接続
-+  dsn := user + ":" + pass + "@unix(" + soket + ")/?charset=utf8mb4&parseTime=True&loc=Local"
-
-  // 接続開始
-  _, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
-  // 接続失敗時はエラーを出力し、成功時は何も出力しない。
-  if err != nil {
-    panic(err.Error())
-  }
-}
-```
-
-3. ##### データベースを作成
-```diff go:main.go
-package main
-
-import (
-  "gorm.io/driver/mysql"
-  "gorm.io/gorm"
-)
-
-func main() {
-
-  // データベース情報
-  db_user := "root"
-  db_pass := "root"
-  db_host := "localhost"
-  db_port := "3306"
-+ db_name := "golearn" // DB名を追加
-
-  dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/?charset=utf8mb4&parseTime=True&loc=Local"
-
-  // 接続開始
-  db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
-  // 接続失敗時はエラーを出力し、成功時は何も出力しない。
-  if err != nil {
-    panic(err.Error())
-  }
-
-+  // データベース：golearn を作成
-+  exec := db.Exec("CREATE DATABASE IF NOT EXISTS " + db_name)
-+  fmt.Println(exec)
-
-}
-```
-4. ##### MAMPまたはXAMPPのphpMyAdminの画面で確認する
-5. ##### initdbディレクトリを作りそこにmain.goを複製してinitdb.goにリネームする
-```
-// 現時点でのディレクトリ構成
-~/
- └─ golearn/
-     ├─ initdb/
-         └─ initdb.go // main.goを複製してinitdb.goにリネーム
-     ├─ go.mod
-     └─ main.go
-```
-
-:::
-<!-- Step -->
-
 ## GORMとは？
 GoのORMです。
 ORMとは、（Object-Relational Mapping）の頭文字をとったもので、その名前からわかる通り、オブジェクトと関係（関係データベース、RDB）とのマッピングを行うものです。
 https://gorm.io/ja_JP/docs/index.html
 
 ## GORMのインストール
-まずは、コマンドラインでGORMをインストールします。
+まずは、ターミナルで下記コマンドを実行しGORMをインストールします。
 今回はデータベースにMySQLを使用しますのでいっしょにドライバもインストールしておきます。
 
 ```
@@ -150,13 +24,15 @@ $ go get -u gorm.io/driver/mysql
 事前にMAMPまたはXAMPPを起動しておいてください。
 
 :::message
-この先はMAMPまたはXAMPPを起動しっぱなしにしておいて下さい。
+この先はMAMPまたはXAMPPを起動したまま進めて下さい。
 :::
 
 ```main.go```を下記のように編集します。
 ユーザー名やパスワードなどはご自身の環境に合わせてご変更ください。
 
-ちなみに、デフォルトのユーザー名とパスワードはMAMPだと`ユーザー名：root、パスワード：root`、XAMPPは`ユーザー名：root、パスワード：なし`になってると思います。
+ちなみに、初期だとユーザー名とパスワードはそれぞれ下記のようになっていると思います。
+■ MAMP →ユーザー名：root、パスワード：root
+■ XAMPP →ユーザー名：root、パスワード：なし
 
 ```go:main.go
 package main
@@ -251,7 +127,7 @@ func main() {
 package main
 
 import (
-  "fmt"
++  "fmt"
 
   "gorm.io/driver/mysql"
   "gorm.io/gorm"
@@ -269,7 +145,7 @@ func main() {
   dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/?charset=utf8mb4&parseTime=True&loc=Local"
 
   // 接続開始
-  db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
++  db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
   // 接続失敗時はエラーを出力し、成功時は何も出力しない。
   if err != nil {
@@ -302,11 +178,11 @@ $ go run main.go
 これでデータベースへの接続や作成はできました。ですが、まだ何もテーブルがありません。
 次のページで**構造体を定義しテーブルを作成（マイグレーション）** していきます。
 
-その前に、現在の`main.go`はデータベースの接続確認と作成を行うだけの処理ですので、作成後はデータベースが削除されない限りは実行する必要はありません。
+その前に、現在の`main.go`はデータベースの接続確認と作成を行うだけの処理ですので、一度作成した後はデータベースが削除されない限り実行する必要はありません。
 
-別の場所に移動させて必要な時に実行できるようにしておきましょう。
+別の場所に移動させておいて必要な時に実行できるようにしておきましょう。
 
-ここでは新たに`initdb`ディレクトリを作り、その中に`main.go`ファイルを複製し、`initdbe.go`にリネームしておきます。
+ここでは新たに`initdb`ディレクトリを作り、その中に`main.go`ファイルを複製し、`initdb.go`にリネームします。
 ```
 // 現時点でのディレクトリ構成
 ~/
@@ -317,7 +193,7 @@ $ go run main.go
      └─ main.go
 ```
 
-これで、データベースの接続・作成が必要な時は`initdb`ディレクトリに移動し、実行するだけでよい環境ができました。（下記参照）
+これで、データベースの接続・作成が必要な時は、`initdb`ディレクトリに移動し、実行するだけでデータベースが作成できる環境ができました。（下記参照）
 ```
 # ディレクトリを移動
 $ cd ~/golearn/initdb/
@@ -326,5 +202,17 @@ $ cd ~/golearn/initdb/
 go run initdb.go
 ```
 
-次に、構造体を定義しテーブルを作成（マイグレーション）する作業に進みましょう。
+`main.go`は次のページでも引き続き使用しますので、中身をGoをインストールした時点の状態に戻しておきます。
+```go:main.go
+package main
+
+import (
+  "fmt"
+)
+
+func main() {
+  fmt.Println("Hello World")
+}
+```
+では、構造体を定義しテーブルを作成（マイグレーション）する作業に進みましょう。
 

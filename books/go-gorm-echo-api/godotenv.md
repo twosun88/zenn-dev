@@ -1,176 +1,17 @@
 ---
-title: "データベース情報をgodotenvで.envから読み込む"
+title: "データベース情報を.envから読み込む"
 free: false
 ---
 
-このページではデータベース情報を.envファイルから読み込み方法を説明します。
-<!-- Step -->
-:::details 手順だけ見たい方はこちら
-1. ##### godotenvのインストール
-```
-$ go get github.com/joho/godotenv
-```
+このページではデータベース情報を.envファイルに設定しgodotenvを使って読み込み方法を説明します。
 
-2. ##### .envファイルを作成しデータベース情報を記述
-```
-// 現時点でのディレクトリ構成
-~/
- └─ golearn/
-     ├─ initdb/
-         └─ initdb.go
-     ├─ migrate/
-         └─ migrate.go
-     ├─ .env // 追加
-     ├─ go.mod
-     └─ main.go
-```
-```:.env
-DB_HOST = localhost
-DB_PORT = 3306
-DB_USER = root
-DB_PASS = 1234
-DB_NAME = golearn
-```
-3. ##### .envファイルからデータベース情報を読む込むように/initdb/initdb.goを編集。
-```diff go:initdb/initdb.go
-package main
-
-import (
-  "fmt"
-+  "os"
-
-  _ "github.com/jinzhu/gorm/dialects/mysql"
-+  "github.com/joho/godotenv"
-  "gorm.io/driver/mysql"
-  "gorm.io/gorm"
-)
-
-func main() {
-
--  // 今まで使用していたデータベース情報は削除する
--  db_user := "root"
--  db_pass := "root"
--  db_host := "localhost"
--  db_port := "3306"
--  db_name := "golearn"
-
-+  // .envファイルを読み込む（相対パスで指定）
-+  err := godotenv.Load("../.env")
-
-+  // 読み込みに失敗時の処理
-+  if err != nil {
-+    panic("Error loading .env file")
-+  }
-
-+  // .envファイルから環境変数を読み込む
-+  user := os.Getenv("DB_USER")
-+  pass := os.Getenv("DB_PASS")
-+  host := os.Getenv("DB_HOST")
-+  port := os.Getenv("DB_PORT")
-+  name := os.Getenv("DB_NAME")
-
-+  dsn := user + ":" + pass + "@tcp(" + host + ":" + port + ")/?charset=utf8mb4&parseTime=True&loc=Local"
-
-  // 接続開始
-  db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
-  // 接続失敗時はエラーを出力し、成功時は何も出力しない。
-  if err != nil {
-    panic(err.Error())
-  }
-
-  // データベース：golearn を作成
-  exec := db.Exec("CREATE DATABASE IF NOT EXISTS " + name)
-	fmt.Println(exec)
-
-}
-```
-4. ##### ブラウザでphpMyAdminを開き「golearn」を削除
-5. ##### `initdb.go` を実行
-6. ##### 再度ブラウザでphpMyAdminを開き、「golearn」が再度作成されていればOK。
-
-7. ##### 3〜6の同様の処理を/migrate/migrate.goでも行う。
-```diff go:migrate/migrate.go
-package main
-
-import (
-  "os"
-  "time"
-
-  "github.com/joho/godotenv"
-  "gorm.io/driver/mysql"
-  "gorm.io/gorm"
-)
-
-type User struct {
-  ID        int       `gorm:"autoIncrement"`
-  Name      string    `gorm:"type:text;"`
-  Email     string    `gorm:"type:text; not null"`
-  CreatedAt time.Time `gorm:"not null; autoCreateTime"`
-  UpdatedAt time.Time `gorm:"not null; autoUpdateTime"`
-}
-
-type UserTodo struct {
-  ID         int       `gorm:"autoIncrement"`
-  UserId     int       `gorm:"type:int; not null"`
-  TodoName   string    `gorm:"type:text; not null"`
-  TodoStatus *bool     `gorm:"not null; default: 0"`
-  CreatedAt  time.Time `gorm:"not null; autoCreateTime"`
-  UpdatedAt  time.Time `gorm:"not null; autoUpdateTime"`
-}
-
-func main() {
-
--  // 今まで使用していたデータベース情報は削除する
--  db_user := "root"
--  db_pass := "root"
--  db_host := "localhost"
--  db_port := "3306"
--  db_name := "golearn"
-
-+  // .envファイルを読み込む（相対パスで指定）
-+  err := godotenv.Load("../.env")
-
-+  // 読み込みに失敗時の処理
-+  if err != nil {
-+    panic("Error loading .env file")
-+  }
-
-+  // .envファイルから環境変数を読み込む
-+  user := os.Getenv("DB_USER")
-+  pass := os.Getenv("DB_PASS")
-+  host := os.Getenv("DB_HOST")
-+  port := os.Getenv("DB_PORT")
-+  name := os.Getenv("DB_NAME")
-
-+  dsn := user + ":" + pass + "@tcp(" + host + ":" + port + ")/" + name + "?charset=utf8mb4&parseTime=True&loc=Local"
-
-  // 接続開始
-  db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
-  // 接続失敗時はエラーを出力し、成功時は何も出力しない。
-  if err != nil {
-    panic(err.Error())
-  }
-
-  // マイグレーション実行
-  db.AutoMigrate(&User{}, &UserTodo{})
-
-}
-
-```
-8. ##### ブラウザでphpMyAdminを開きを「usersとuser_todos」テーブルを削除
-9. ##### `migrate.go`を実行。
-10. ##### 再度ブラウザでphpMyAdminを開き「usersとuser_todos」テーブルが再度作成されていればOK。
-
-:::
 ## godotenvとは？
-.envファイルから環境変数を読み込むためのGoのライブラリです。
+.envファイルから環境変数を読み込むためのGoのパッケージです。
 https://github.com/joho/godotenv
 
 ## godotenvのインストール
 
-まずは、下記をコマンドラインで実行しgodotenvをインストールします。
+まずは、ターミナルで下記コマンドを実行しgodotenvをインストールします。
 ```
 $ go get github.com/joho/godotenv
 ```
@@ -193,7 +34,7 @@ $ go get github.com/joho/godotenv
 DB_HOST = localhost
 DB_PORT = 3306
 DB_USER = root
-DB_PASS = 1234
+DB_PASS = root
 DB_NAME = golearn
 ```
 あとは、データベースのユーザー名などをこの.envファイルから呼び出すだけで、他は特に変わりありません。まずは、`initdb.go`を編集してみましょう。
@@ -205,20 +46,12 @@ import (
   "fmt"
 +  "os"
 
-  _ "github.com/jinzhu/gorm/dialects/mysql"
 +  "github.com/joho/godotenv"
   "gorm.io/driver/mysql"
   "gorm.io/gorm"
 )
 
 func main() {
-
--  // 今まで使用していたデータベース情報は削除する
--  db_user := "root"
--  db_pass := "root"
--  db_host := "localhost"
--  db_port := "3306"
--  db_name := "golearn"
 
 +  // .envファイルを読み込む（相対パスで指定）
 +  err := godotenv.Load("../.env")
@@ -228,14 +61,21 @@ func main() {
 +    panic("Error loading .env file")
 +  }
 
-+  // .envファイルから環境変数を読み込む
-+  user := os.Getenv("DB_USER")
-+  pass := os.Getenv("DB_PASS")
-+  host := os.Getenv("DB_HOST")
-+  port := os.Getenv("DB_PORT")
-+  name := os.Getenv("DB_NAME")
+-  // 今まで使用していたデータベース情報は削除する
+-  db_user := "root"
+-  db_pass := "root"
+-  db_host := "localhost"
+-  db_port := "3306"
+-  db_name := "golearn"
 
-+  dsn := user + ":" + pass + "@tcp(" + host + ":" + port + ")/?charset=utf8mb4&parseTime=True&loc=Local"
++  // .envファイルから環境変数を読み込む
++  db_user := os.Getenv("DB_USER")
++  db_pass := os.Getenv("DB_PASS")
++  db_host := os.Getenv("DB_HOST")
++  db_port := os.Getenv("DB_PORT")
++  db_name := os.Getenv("DB_NAME")
+
++  dsn := db_user + ":" + db_pass + "@tcp(" + db_host + ":" + db_port + ")/?charset=utf8mb4&parseTime=True&loc=Local"
 
   // 接続開始
   db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
@@ -246,7 +86,7 @@ func main() {
   }
 
   // データベース：golearn を作成
-  exec := db.Exec("CREATE DATABASE IF NOT EXISTS " + name)
++  exec := db.Exec("CREATE DATABASE IF NOT EXISTS " + db_name)
   fmt.Println(exec)
 
 }
